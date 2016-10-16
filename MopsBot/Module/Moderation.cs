@@ -14,63 +14,11 @@ namespace MopsBot.Module
 {
     class Moderation : IModule
     {
-
-        public class EUser
-        {
-            public User u;
-            System.Timers.Timer t;
-            IEnumerable<Role> r;
-            Server s;
-            Moderation m;
-            public EUser(User pu, int min, Server ps, List<Role> pr, Moderation pM)
-            {
-                m = pM;
-                s = ps;
-                u = pu;
-                r = u.Roles;
-
-                u.Edit(null, null, null, pr);
-
-
-                if (min != 0)
-                {
-                    t = new System.Timers.Timer(min * 60 * 1000);
-                    t.Elapsed += T_Elapsed;
-                    t.AutoReset = false;
-                    t.Enabled = true;
-
-                    GC.KeepAlive(t);
-                }
-            }
-
-
-
-            private void T_Elapsed(object sender, ElapsedEventArgs e)
-            {
-
-                undo();
-                t.Dispose();
-
-
-            }
-            public void undo()
-            {
-                u.Edit(null, null, null, r);
-                m.updateList(this);
-            }
-
-
-        }
-        List<EUser> tu;
+    
         private ModuleManager _manager;
         private DiscordClient _client;
         private Data.Poll poll;
 
-        public Moderation()
-        {
-            tu = new List<EUser>();
-
-        }
         public void Install(ModuleManager manager)
         {
             _manager = manager;
@@ -159,29 +107,6 @@ namespace MopsBot.Module
 
             }
             catch { }
-        }
-
-        public bool updateList(EUser pU)
-        {
-            if (tu.Contains(pU))
-            {
-                tu.Remove(pU);
-                return true;
-            }
-            return false;
-        }
-        public bool updateList(User pU)
-        {
-            for (int i = 0; i < tu.Count; i++)
-            {
-                if (tu[i].u == pU)
-                {
-                    tu[i].undo();
-                    
-                    return true;
-                }
-            }
-            return false;
         }
     }
 }
