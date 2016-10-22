@@ -54,10 +54,5 @@ namespace MopsBot.Module.Data.User
             }
             return output + TempOutput;
         }
-
-        //public int getHP()
-        //{
-        //    return (Level * Level + 3) + (new Data.Items().getItem(monster).itemHP);
-        //}
     }
 }
