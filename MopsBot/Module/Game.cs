@@ -24,7 +24,7 @@ namespace MopsBot.Module
         private User victim, culprit;
         private Channel beenSearch;
         private Random ran = new Random();
-        int status = 0, quest = 0, number, HP1, HP2;
+        int status = 0;
         string[] wires, wiresUsed;
         public static Data.UserScore userScores;
         string wire;
@@ -465,12 +465,12 @@ namespace MopsBot.Module
                     int exp = userScores.users[i].Experience;
                     int mip = userScores.users[i].monster;
                     userScores.users.RemoveAt(i);
-                    userScores.users.Add(new Data.User.User(user.Id, score, exp, mip));
+                    userScores.users.Add(new Data.User.User(user.Id, score, exp));
                     userScores.writeScore();
                     return;
                 }
             }
-            userScores.users.Add(new Data.User.User(user.Id, score, 0, 0));
+            userScores.users.Add(new Data.User.User(user.Id, score, 0));
             userScores.writeScore();
         }
 
@@ -485,31 +485,12 @@ namespace MopsBot.Module
                     exp += userScores.users[i].Experience;
                     int mip = userScores.users[i].monster;
                     userScores.users.RemoveAt(i);
-                    userScores.users.Add(new Data.User.User(user.Id, score, exp, mip));
+                    userScores.users.Add(new Data.User.User(user.Id, score, exp));
                     userScores.writeScore();
                     return;
                 }
             }
-            userScores.users.Add(new Data.User.User(user.Id, score, exp, 0));
-            userScores.writeScore();
-        }
-        
-        private void addToBase(User user, int score, int exp, int MIP)
-        {
-            userScores = new Data.UserScore();
-            for (int i = 0; i < userScores.users.Count; i++)
-            {
-                if (userScores.users[i].ID == user.Id)
-                {
-                    score += userScores.users[i].Score;
-                    exp += userScores.users[i].Experience;
-                    userScores.users.RemoveAt(i);
-                    userScores.users.Add(new Data.User.User(user.Id, score, exp, MIP));
-                    userScores.writeScore();
-                    return;
-                }
-            }
-            userScores.users.Add(new Data.User.User(user.Id, score, exp, MIP));
+            userScores.users.Add(new Data.User.User(user.Id, score, exp));
             userScores.writeScore();
         }
 
