@@ -483,7 +483,6 @@ namespace MopsBot.Module
                 {
                     score += userScores.users[i].Score;
                     exp += userScores.users[i].Experience;
-                    int mip = userScores.users[i].monster;
                     userScores.users.RemoveAt(i);
                     userScores.users.Add(new Data.User.User(user.Id, score, exp));
                     userScores.writeScore();
