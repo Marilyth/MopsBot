@@ -59,10 +59,5 @@ namespace MopsBot.Module.Data.User
         //{
         //    return (Level * Level + 3) + (new Data.Items().getItem(monster).itemHP);
         //}
-
-        //public int getDmg()
-        //{
-        //    return (Level * 2) + (new Data.Items().getItem(monster).itemATK);
-        //}
     }
 }
