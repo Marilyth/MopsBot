@@ -11,13 +11,12 @@ namespace MopsBot.Module.Data.User
         public ulong ID;
         public int Score, Experience, Level, monster;
 
-        public User(ulong userID, int userScore, int XP, int MIP)
+        public User(ulong userID, int userScore, int XP)
         {
             ID = userID;
             Score = userScore;
             Experience = XP;
             Level = calcLevel();
-            monster = MIP;
         }
 
         public User(ulong userID, int userScore)

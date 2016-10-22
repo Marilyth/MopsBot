@@ -98,13 +98,13 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\..\Desktop\dotnet\ChatterBotAPI\ChatterBotAPI.csproj">
+    <WCFMetadata Include="Service References\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\..\..\Desktop\dotnet\ChatterBotAPI\ChatterBotAPI.csproj">
       <Project>{2e624962-f155-432c-a90a-e1ce75dee9ea}</Project>
       <Name>ChatterBotAPI</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <WCFMetadata Include="Service References\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

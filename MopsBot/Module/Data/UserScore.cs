@@ -20,7 +20,7 @@ namespace MopsBot.Module.Data
             while ((fs = read.ReadLine()) != null)
             {
                 string[] s = fs.Split(':');
-                users.Add(new User.User(ulong.Parse(s[0]),int.Parse(s[1]), int.Parse(s[2]), int.Parse(s[3])));
+                users.Add(new User.User(ulong.Parse(s[0]),int.Parse(s[1]), int.Parse(s[2])));
             }
             read.Close();
         }
@@ -33,7 +33,7 @@ namespace MopsBot.Module.Data
 
             foreach (User.User that in users)
             {
-                write.WriteLine($"{that.ID}:{that.Score}:{that.Experience}:{that.monster}");
+                write.WriteLine($"{that.ID}:{that.Score}:{that.Experience}");
             }
             write.Close();
         }
