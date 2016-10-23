@@ -36,34 +36,6 @@ namespace MopsBot.Module
                     await e.Channel.SendMessage($"{e.User.Name} joined {e.Server.Name} on {e.User.JoinedAt}");
                 });
 
-                //group.CreateCommand("googleMap")
-                //.Description("Gives you the rough google-maps location of the IP-Address")
-                //.Parameter("IP-Address")
-                //.Do(async e =>
-                //{
-                //    string data = readURL("http://www.api.predator.wtf/geoip/?arguments=" + e.Args[0]);
-                //    await e.Channel.SendMessage(data);
-                //});
-
-                //group.CreateCommand("openPorts")
-                //.Description("Returns a list of open ports of the given IP-Address")
-                //.Hide()
-                //.Parameter("IP-Address")
-                //.Do(async e =>
-                //{
-                //    await e.Channel.SendMessage(readURL("http://api.predator.wtf/pscan/?arguments=" + e.Args[0]));
-                //});
-
-                //group.CreateCommand("portOpen")
-                //.Description("Returns whether a Port is open or not")
-                //.Hide()
-                //.Parameter("IP-Address")
-                //.Parameter("Port")
-                //.Do(async e =>
-                //{
-                //    await e.Channel.SendMessage(readURL($"http://api.predator.wtf/pcheck/?arguments=" + e.Args[0] + "&port=" + e.Args[1]));
-                //});
-
                 group.CreateCommand("joinServer")
                 .Description("Make me join one of your servers, hurray.")
                 .Hide()

@@ -247,7 +247,6 @@ namespace MopsBot.Module
                     {
                         for (int i = 0; i < tempSort.Count; i++)
                         {
-                            if (i >= 10) break;
                             try
                             {
                                 output += $"#{i + 1} ``$ {tempSort[i].Score} $`` by {e.Server.GetUser(tempSort[i].ID).Name}\n";
@@ -293,7 +292,6 @@ namespace MopsBot.Module
                     {
                         for (int i = 0; i < tempSort.Count; i++)
                         {
-                            if (i >= 10) break;
                             try
                             {
                                 output += $"#{i + 1} ``{tempSort[i].Experience} EXP`` by {e.Server.GetUser(tempSort[i].ID).Name}\n";
