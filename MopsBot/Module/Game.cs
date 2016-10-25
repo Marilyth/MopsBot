@@ -350,19 +350,6 @@ namespace MopsBot.Module
 
                     await e.Channel.SendMessage(output);
                 });
-
-                //group.CreateCommand("getStats")
-                //.Description("Returns your current Stats")
-                //.Do(async e =>
-                //{
-                //    int curLevel = findDataUser(e.User).Level;
-                //    await e.Channel.SendMessage($"${findDataUser(e.User).Score}\n" +
-                //                                $"HP: {findDataUser(e.User).getHP()} \n" +
-                //                                $"Level: {curLevel} (Experience Bar: {findDataUser(e.User).calcNextLevel()})\n" +
-                //                                $"DMG: {findDataUser(e.User).getDmg() / 2} - {findDataUser(e.User).getDmg()}\n" +
-                //                                $"EXP: {findDataUser(e.User).Experience}\n" +
-                //                                $"Item: {new Data.Items().getItem(findDataUser(e.User).monster).itemInfo()}");
-                //});
             });
             }
 
