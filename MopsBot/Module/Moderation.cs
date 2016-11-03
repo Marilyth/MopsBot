@@ -17,7 +17,7 @@ namespace MopsBot.Module
     
         private ModuleManager _manager;
         private DiscordClient _client;
-        private Data.Poll poll;
+        private Data.Session.Poll poll;
 
         public void Install(ModuleManager manager)
         {
@@ -48,7 +48,7 @@ namespace MopsBot.Module
                         else participants.AddRange(a.Members);
                     }
 
-                    poll = new Data.Poll(pollSegments[0], pollSegments[1].Split(':'), participants.ToArray());
+                    poll = new Data.Session.Poll(pollSegments[0], pollSegments[1].Split(':'), participants.ToArray());
 
                     foreach (Discord.User part in poll.participants)
                     {

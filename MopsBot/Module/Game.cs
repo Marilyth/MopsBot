@@ -27,6 +27,7 @@ namespace MopsBot.Module
         int status = 0;
         string[] wires, wiresUsed;
         public static Data.UserScore userScores;
+        private Data.Session.Hangman hangman;
         string wire;
 
         void IModule.Install(ModuleManager manager)
@@ -108,7 +109,7 @@ namespace MopsBot.Module
                 {
                     await e.Channel.SendMessage($"[{random.Next(int.Parse(e.Args[0]), int.Parse(e.Args[1]) + 1)}]");
                 });
-                //testing webhooks
+
                 group.CreateCommand("Slotmachine")
                 .Description("Costs 5$")
                 .Do(e =>
@@ -210,6 +211,40 @@ namespace MopsBot.Module
                        }
                    }
                });       
+            });
+
+            manager.CreateCommands("hangman", group =>
+            {
+                group.CreateCommand("start")
+                .Description("Create a game of hangman")
+                .Parameter("Word")
+                .Parameter("Attempts")
+                .Parameter("Server-ID")
+                .PrivateOnly()
+                .Do(async e =>
+                {
+                    if (hangman == null || !hangman.active)
+                    {
+                        hangman = new Data.Session.Hangman(e.Args[0], int.Parse(e.Args[1]));
+                        await e.User.SendMessage("Done!");
+                        Channel message = _client.GetServer(ulong.Parse(e.Args[2])).DefaultChannel;
+                        await message.SendMessage($"{e.User.Name} started a session of hangman!\n\nParticipate by using the **!hangman guess** command!\n\n{hangman.hidden} ({e.Args[1]} false tries allowed)");
+                    }
+                    else await e.User.SendMessage("Currently in use, sorry!");
+                });
+
+                group.CreateCommand("guess")
+                .Description("Guess a character")
+                .Parameter("Guess")
+                .Do(async e =>
+                {
+                    if (hangman.active)
+                    {
+                        string output = hangman.input(e.Args[0].ToCharArray()[0]);
+                        await e.Channel.SendMessage(output);
+                    }
+                    else await e.Channel.SendMessage("No session of hangman running, sorry!");
+                });
             });
 
             manager.CreateCommands("ranking", group =>

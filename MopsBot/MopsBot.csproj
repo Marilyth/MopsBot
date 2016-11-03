@@ -84,7 +84,8 @@
     <Compile Include="Module\DataBase.cs" />
     <Compile Include="Module\Data\Individual\User.cs" />
     <Compile Include="Module\Data\Osu_Data.cs" />
-    <Compile Include="Module\Data\Poll.cs" />
+    <Compile Include="Module\Data\Session\Hangman.cs" />
+    <Compile Include="Module\Data\Session\Poll.cs" />
     <Compile Include="Module\Data\TextInformation.cs" />
     <Compile Include="Module\Data\UserScore.cs" />
     <Compile Include="Module\Game.cs" />
