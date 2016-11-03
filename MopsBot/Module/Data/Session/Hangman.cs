@@ -15,20 +15,42 @@ namespace MopsBot.Module.Data.Session
         public Hangman(string keyword, int attempts)
         {
             active = true;
-            word = keyword.ToLower();
+            word = keyword;
             foreach (char c in word) hidden += "-";
             tries = attempts;
             attempt = 0;
         }
 
+        public string solve(string guess)
+        {
+            if (word.ToLower().Equals(guess.ToLower()))
+            {
+                active = false;
+                return word + "\nYou solved it! o;";
+            }
+
+            else
+            {
+                attempt++;
+
+                if (attempt >= tries)
+                {
+                    this.active = false;
+                    return "You lost! HAHAHAHA";
+                }
+
+                return hidden + $" ({tries - attempt} false tries remaining)\nWrong :d";
+            }
+        }
+
         public string input(char guess)
         {
-            if (word.Contains(guess))
+            if (word.ToLower().Contains(guess))
             {
                 for (int i = 0; i < word.Length; i++)
                 {
                     char[] hidarray = hidden.ToCharArray();
-                    if (word[i].Equals(guess)) hidarray[i] = guess;
+                    if (char.ToLower(word[i]).Equals(guess)) hidarray[i] = word[i];
                     hidden = new string(hidarray);
                 }
             }

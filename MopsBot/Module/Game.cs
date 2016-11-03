@@ -220,6 +220,7 @@ namespace MopsBot.Module
                 .Parameter("Word")
                 .Parameter("Attempts")
                 .Parameter("Server-ID")
+                .Parameter("Channel-ID")
                 .PrivateOnly()
                 .Do(async e =>
                 {
@@ -227,7 +228,7 @@ namespace MopsBot.Module
                     {
                         hangman = new Data.Session.Hangman(e.Args[0], int.Parse(e.Args[1]));
                         await e.User.SendMessage("Done!");
-                        Channel message = _client.GetServer(ulong.Parse(e.Args[2])).DefaultChannel;
+                        Channel message = _client.GetServer(ulong.Parse(e.Args[2])).GetChannel(ulong.Parse(e.Args[3]));
                         await message.SendMessage($"{e.User.Name} started a session of hangman!\n\nParticipate by using the **!hangman guess** command!\n\n{hangman.hidden} ({e.Args[1]} false tries allowed)");
                     }
                     else await e.User.SendMessage("Currently in use, sorry!");
@@ -240,7 +241,15 @@ namespace MopsBot.Module
                 {
                     if (hangman.active)
                     {
-                        string output = hangman.input(e.Args[0].ToCharArray()[0]);
+                        string output = "";
+
+                        if(e.Args[0].Length == hangman.word.Length)
+                        {
+                            output = hangman.solve(e.Args[0]);
+                        }
+
+                        else output = hangman.input(e.Args[0].ToCharArray()[0]);
+
                         await e.Channel.SendMessage(output);
                     }
                     else await e.Channel.SendMessage("No session of hangman running, sorry!");
