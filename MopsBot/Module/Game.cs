@@ -245,10 +245,10 @@ namespace MopsBot.Module
 
                         if(e.Args[0].Length == hangman.word.Length)
                         {
-                            output = hangman.solve(e.Args[0]);
+                            output = hangman.solve(e.Args[0], e.User);
                         }
 
-                        else output = hangman.input(e.Args[0].ToCharArray()[0]);
+                        else output = hangman.input(e.Args[0].ToCharArray()[0], e.User);
 
                         await e.Channel.SendMessage(output);
                     }
@@ -483,7 +483,7 @@ namespace MopsBot.Module
             unDo();
         }
 
-        private void addToBase(User user, int score)
+        public static void addToBase(User user, int score)
         {
             userScores = new Data.UserScore();
             for(int i = 0; i<userScores.users.Count; i++)

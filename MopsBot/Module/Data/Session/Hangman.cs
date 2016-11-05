@@ -21,12 +21,17 @@ namespace MopsBot.Module.Data.Session
             attempt = 0;
         }
 
-        public string solve(string guess)
+        public string solve(string guess, Discord.User eUser)
         {
             if (word.ToLower().Equals(guess.ToLower()))
             {
                 active = false;
-                return word + "\nYou solved it! o;";
+                int bonus = 0, result = 0;
+                foreach(char c in hidden)
+                    if (c.Equals('-')) bonus++;
+                result = word.Length + bonus * (tries - attempt);
+                Game.addToBase(eUser, result);
+                return $"{word}\nYou solved it! o;\n+**[$ {result} $]**";
             }
 
             else
@@ -43,7 +48,7 @@ namespace MopsBot.Module.Data.Session
             }
         }
 
-        public string input(char guess)
+        public string input(char guess, Discord.User eUser)
         {
             if (word.ToLower().Contains(guess))
             {
@@ -66,7 +71,8 @@ namespace MopsBot.Module.Data.Session
             else if (!hidden.Contains("-"))
             {
                 this.active = false;
-                return hidden + "\nSeems like you won!";
+                Game.addToBase(eUser, word.Length - (tries - attempt));
+                return $"{hidden}\nSeems like you won!\n+**[$ {word.Length} $]**";
             }
 
             return hidden + $" ({tries - attempt} false tries remaining)";
