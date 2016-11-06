@@ -20,16 +20,10 @@ namespace MopsBot.Module
     {
         private ModuleManager _manager;
         private DiscordClient _client;
-        private Timer aTimer;
-        private User victim, culprit;
-        private Channel beenSearch;
         private Random ran = new Random();
-        int status = 0;
-        string[] wires, wiresUsed;
         public static Data.UserScore userScores;
         private Data.Session.Hangman hangman;
         private Data.Session.Bomb bomb;
-        string wire;
 
         void IModule.Install(ModuleManager manager)
         {
@@ -457,14 +451,6 @@ namespace MopsBot.Module
             }
 
             return userName;
-        }
-
-        private void unDo()
-        {
-            culprit = null;
-            aTimer.Stop();
-            status = 0;
-            victim = null;
         }
     }
 }
