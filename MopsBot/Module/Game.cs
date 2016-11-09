@@ -24,13 +24,10 @@ namespace MopsBot.Module
         public static Data.UserScore userScores;
         private Data.Session.Hangman hangman;
         private Data.Session.Bomb bomb;
+        private Data.Session.Salad salad;
 
         void IModule.Install(ModuleManager manager)
         {
-            //aTimer = new Timer();
-            //aTimer.Elapsed += ATimer_Elapsed;
-            //wires = new string[] { "salmon", "purple", "aquamarine", "emerald", "apricot", "cerulean", "peach", "blue", "red", "yellow", "black", "white", "green", "orange", "cyan", "beige", "grey", "gold", "buff", "monza", "rose", "tan", "brown", "flax", "pink" };
-
             Random random = new Random();
             userScores = new UserScore();
 
@@ -220,6 +217,28 @@ namespace MopsBot.Module
                         await e.Channel.SendMessage(output);
                     }
                     else await e.Channel.SendMessage("No session of hangman running, sorry!");
+                });
+            });
+
+            manager.CreateCommands("salad", group =>
+            {
+                group.CreateCommand("start")
+                .Description("Create a game of word-salad")
+                .Parameter("Words", ParameterType.Unparsed)
+                .Do(async e =>
+                {
+                    string[] words = e.GetArg(0).Split(' ');
+                    salad = new Data.Session.Salad(words.ToList());
+
+                    await e.Channel.SendMessage(salad.drawMap());
+                });
+
+                group.CreateCommand("guess")
+                .Description("Guess the words x/y start and end point. Example: !salad guess 1;1 1;4")
+                .Parameter("Guess", ParameterType.Unparsed)
+                .Do(async e =>
+                {
+                    await e.Channel.SendMessage(salad.guessWord(e.User, e.GetArg(0)));
                 });
             });
 
