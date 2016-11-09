@@ -35,11 +35,11 @@ namespace MopsBot
             _client.AddModule<Module.Moderation>("Moderation");
 
 
-            var token = "Bot MjEyOTc1NTYxNzU5MzkxNzQ0.CrQ03A.z_k75FXO07-PJxb4Wmb0xZwJ-ZM";
+            var token = "MjEyOTc1NTYxNzU5MzkxNzQ0.CrQ03A.z_k75FXO07-PJxb4Wmb0xZwJ-ZM";
 
             _client.ExecuteAndWait(async () =>
             {
-                await _client.Connect(token);
+                await _client.Connect(token, TokenType.Bot);
             });
 
         }

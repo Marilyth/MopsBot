@@ -20,20 +20,16 @@ namespace MopsBot.Module
     {
         private ModuleManager _manager;
         private DiscordClient _client;
-        private Timer aTimer;
-        private User victim, culprit;
-        private Channel beenSearch;
         private Random ran = new Random();
-        int status = 0;
-        string[] wires, wiresUsed;
         public static Data.UserScore userScores;
-        string wire;
+        private Data.Session.Hangman hangman;
+        private Data.Session.Bomb bomb;
 
         void IModule.Install(ModuleManager manager)
         {
-            aTimer = new Timer();
-            aTimer.Elapsed += ATimer_Elapsed;
-            wires = new string[] { "salmon", "purple", "aquamarine", "emerald", "apricot", "cerulean", "peach", "blue", "red", "yellow", "black", "white", "green", "orange", "cyan", "beige", "grey", "gold", "buff", "monza", "rose", "tan", "brown", "flax", "pink" };
+            //aTimer = new Timer();
+            //aTimer.Elapsed += ATimer_Elapsed;
+            //wires = new string[] { "salmon", "purple", "aquamarine", "emerald", "apricot", "cerulean", "peach", "blue", "red", "yellow", "black", "white", "green", "orange", "cyan", "beige", "grey", "gold", "buff", "monza", "rose", "tan", "brown", "flax", "pink" };
 
             Random random = new Random();
             userScores = new UserScore();
@@ -61,41 +57,13 @@ namespace MopsBot.Module
                 .Do(async e =>
                 {
                     e.Args[0] = e.Args[0].Replace("!","");
-                    if (victim == null && e.Server.FindUsers(e.Args[0], false).FirstOrDefault().Status.Value.Equals("online") && status == 0)
+                    if (bomb == null || !bomb.active && e.Server.FindUsers(e.Args[0], false).FirstOrDefault().Status.Value.Equals("online"))
                     {
-                        status = 1;
+                        bomb = new Data.Session.Bomb(e.User, e.Server.FindUsers(e.Args[0]).FirstOrDefault());
 
-                        aTimer.Interval = random.Next(30000, 60000);
-                        aTimer.Start();
-
-                        int wiresrandom = random.Next(2, 11);
-                        string output = "";
-                        wiresUsed = new string[wiresrandom];
-
-                        for (int i = 0; i < wiresrandom; i++)
-                        {
-                            int innerrandom = random.Next(0, wires.Length);
-                            if (!wiresUsed.Contains(wires[innerrandom]))
-                            {
-                                wiresUsed[i] = wires[innerrandom];
-                                output += $" {wiresUsed[i]} ";
-                            }
-                            else i--;
-                        }
-                        wire = wiresUsed[random.Next(0, wiresUsed.Length)];
-                        victim = e.Server.FindUsers(e.Args[0]).FirstOrDefault();
-
-                        if (victim.IsBot)
-                        {
-                            await e.Channel.SendMessage("How dare you attack a Bot like this? How about you taste your own medicine?");
-                            victim = e.User;
-                        }
-                        if (victim != e.User) culprit = e.User;
-                        beenSearch = e.Channel;
-                        await e.Channel.SendMessage($"{victim.Name} is being bombed!\n" +
+                        await e.Channel.SendMessage($"{e.Server.FindUsers(e.Args[0]).FirstOrDefault().Name} is being bombed!\n" +
                                                     "Quick, find the right wire to cut!\n" +
-                                                    $"({output})\n" +
-                                                    $"You have got {(int)(aTimer.Interval / 1000)} seconds before the bomb explodes!");
+                                                    $"({String.Join(", ", bomb.wires)})\n");
                     }
                     else await e.Channel.SendMessage("Either the User is not online, or the Command is already in use!");
                 });
@@ -108,7 +76,7 @@ namespace MopsBot.Module
                 {
                     await e.Channel.SendMessage($"[{random.Next(int.Parse(e.Args[0]), int.Parse(e.Args[1]) + 1)}]");
                 });
-                //testing webhooks
+
                 group.CreateCommand("Slotmachine")
                 .Description("Costs 5$")
                 .Do(e =>
@@ -210,6 +178,49 @@ namespace MopsBot.Module
                        }
                    }
                });       
+            });
+
+            manager.CreateCommands("hangman", group =>
+            {
+                group.CreateCommand("start")
+                .Description("Create a game of hangman")
+                .Parameter("Word")
+                .Parameter("Attempts")
+                .Parameter("Server-ID")
+                .Parameter("Channel-ID")
+                .PrivateOnly()
+                .Do(async e =>
+                {
+                    if (hangman == null || !hangman.active)
+                    {
+                        hangman = new Data.Session.Hangman(e.Args[0], int.Parse(e.Args[1]));
+                        await e.User.SendMessage("Done!");
+                        Channel message = _client.GetServer(ulong.Parse(e.Args[2])).GetChannel(ulong.Parse(e.Args[3]));
+                        await message.SendMessage($"{e.User.Name} started a session of hangman!\n\nParticipate by using the **!hangman guess** command!\n\n{hangman.hidden} ({e.Args[1]} false tries allowed)");
+                    }
+                    else await e.User.SendMessage("Currently in use, sorry!");
+                });
+
+                group.CreateCommand("guess")
+                .Description("Guess a character")
+                .Parameter("Guess")
+                .Do(async e =>
+                {
+                    if (hangman.active)
+                    {
+                        string output = "";
+
+                        if(e.Args[0].Length == hangman.word.Length)
+                        {
+                            output = hangman.solve(e.Args[0], e.User);
+                        }
+
+                        else output = hangman.input(e.Args[0].ToCharArray()[0], e.User);
+
+                        await e.Channel.SendMessage(output);
+                    }
+                    else await e.Channel.SendMessage("No session of hangman running, sorry!");
+                });
             });
 
             manager.CreateCommands("ranking", group =>
@@ -364,48 +375,11 @@ namespace MopsBot.Module
                 addToBase(e.User, 0, e.Message.RawText.Length);
                 if (pre != -1 && pre < findDataUser(e.User).Level) e.Channel.SendMessage($"{e.User.Name} advanced from level {pre} to level {findDataUser(e.User).Level}!");
 
-                if (e.User == victim)
+                if (bomb != null && bomb.active && e.User == bomb.defender)
                 {
-                    switch (status)
+                    if (bomb.wires.Contains(e.Message.Text))
                     {
-                        case 0:
-                            break;
-                        case 1:
-                            if (wiresUsed.Contains(e.Message.Text) && !wire.Contains(e.Message.Text))
-                            {
-                                if (culprit == null && 1 == new Random().Next(1, 3)) e.Channel.SendMessage("That wire did nothing! Quick, try another one!\n");
-                                else if (culprit != null && 1 == new Random().Next(1, 4)) e.Channel.SendMessage("That wire did nothing! Quick, try another one!\n");
-                                else if (culprit != null && 2 == new Random().Next(1, 3))
-                                {
-                                    e.Channel.SendMessage($"The bomb somehow jumped over to {culprit.Mention}! Quick, cut a wire!\n");
-                                    User vic = victim;
-                                    victim = culprit;
-                                    culprit = vic;
-                                }
-                                else
-                                {
-                                    e.Channel.SendMessage($"No! The right wire was {wire}\nWOOOOSH!\n...ehe, I don't really have an actual bomb.");
-                                    if (culprit != null)
-                                    {
-                                        addToBase(culprit, wires.Length / wiresUsed.Length);
-                                        addToBase(victim, wires.Length / wiresUsed.Length * -1);
-                                        e.Channel.SendMessage($"Anyway, {culprit.Name} just took ``[$ {wires.Length / wiresUsed.Length} $]`` from you. {culprit.Name} now has ${findDataUser(culprit).Score}.\nYou now have ${findDataUser(victim).Score}.");
-                                    }
-                                    else
-                                    {
-                                        addToBase(victim, wires.Length / wiresUsed.Length * -1);
-                                        e.Channel.SendMessage($"Also, during the imaginary explosion, ``[$ {wires.Length / wiresUsed.Length} $]`` disappeared from your pocket!\nYou now have ${findDataUser(victim).Score}.");
-                                    }
-                                    unDo();
-                                }
-                            }
-                            else if (wiresUsed.Contains(e.Message.Text) && wire.Contains(e.Message.Text))
-                            {
-                                addToBase(e.User, wiresUsed.Length * 3);
-                                e.Channel.SendMessage($"Wow! Good job o.o\n``[$ {wiresUsed.Length * 3} $]`` You now have ${findDataUser(e.User).Score} in total!");
-                                unDo();
-                            }
-                            break;
+                        e.Channel.SendMessage(bomb.guess(e.Message.Text));
                     }
                 }
             }
@@ -415,31 +389,7 @@ namespace MopsBot.Module
             }
         }
 
-        private void ATimer_Elapsed(object sender, ElapsedEventArgs e)
-        {
-            switch (status)
-            {
-                case 1:
-                    beenSearch.SendMessage($"WOOOOSH! The correct wire was {wire}\n...ehe, I don't really have an actual bomb.");
-                    if (culprit != null)
-                    {
-                        addToBase(culprit, wires.Length / wiresUsed.Length);
-                        addToBase(victim, wires.Length / wiresUsed.Length * -1);
-                        beenSearch.SendMessage($"Anyway, {culprit.Name} just took ``[$ {wires.Length / wiresUsed.Length} $]`` from you. {culprit.Name} now has ${findDataUser(culprit).Score}.\nYou now have ${findDataUser(victim).Score}.");
-                    }
-                    else
-                    {
-                        addToBase(victim, wires.Length / wiresUsed.Length * -1);
-                        beenSearch.SendMessage($"Also, during the imaginary explosion, ``[$ {wires.Length / wiresUsed.Length} $]`` disappeared from your pocket!\nYou now have ${findDataUser(victim).Score}.");
-                    }
-                    break;
-
-
-            }
-            unDo();
-        }
-
-        private void addToBase(User user, int score)
+        public static void addToBase(User user, int score)
         {
             userScores = new Data.UserScore();
             for(int i = 0; i<userScores.users.Count; i++)
@@ -501,14 +451,6 @@ namespace MopsBot.Module
             }
 
             return userName;
-        }
-
-        private void unDo()
-        {
-            culprit = null;
-            aTimer.Stop();
-            status = 0;
-            victim = null;
         }
     }
 }

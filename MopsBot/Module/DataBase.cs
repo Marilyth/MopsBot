@@ -255,30 +255,34 @@ namespace MopsBot.Module
         {
             foreach(Data.osuUser OUser in osuInfo.osuUsers)
             {
-                if (_client.GetServer(155403174142803969).GetUser(OUser.discordID).Status.Value.Equals(UserStatus.Online.Value))
+                try
                 {
-                    dynamic dict = Data.osuUser.userStats(OUser.ident.ToString(), OUser.mainMode);
-                    if (OUser.pp < double.Parse(dict["pp_raw"], CultureInfo.InvariantCulture))
+                    if (_client.GetServer(155403174142803969).GetUser(OUser.discordID).Status.Value.Equals(UserStatus.Online.Value))
                     {
-                        string query = Information.readURL($"https://osu.ppy.sh/api/get_user_recent?u={OUser.ident}&{OUser.mainMode}&limit=1&k={apiKey}");
-                        query = query.Remove(0, 1);
-                        query = query.Remove(query.Length - 1, 1);
+                        dynamic dict = Data.osuUser.userStats(OUser.ident.ToString(), OUser.mainMode);
+                        if (OUser.pp < double.Parse(dict["pp_raw"], CultureInfo.InvariantCulture))
+                        {
+                            string query = Information.readURL($"https://osu.ppy.sh/api/get_user_recent?u={OUser.ident}&{OUser.mainMode}&limit=1&k={apiKey}");
+                            query = query.Remove(0, 1);
+                            query = query.Remove(query.Length - 1, 1);
 
-                        var jss = new JavaScriptSerializer();
-                        var dict2 = jss.Deserialize<dynamic>(query);
+                            var jss = new JavaScriptSerializer();
+                            var dict2 = jss.Deserialize<dynamic>(query);
 
-                        string beatmap_ID = dict2["beatmap_id"];
-                        query = Information.readURL($@"https://osu.ppy.sh/api/get_scores?b={beatmap_ID}&{OUser.mainMode}&u={OUser.username}&limit=1&k={apiKey}");
-                        query = query.Remove(0, 1);
-                        query = query.Remove(query.Length - 1, 1);
+                            string beatmap_ID = dict2["beatmap_id"];
+                            query = Information.readURL($@"https://osu.ppy.sh/api/get_scores?b={beatmap_ID}&{OUser.mainMode}&u={OUser.username}&limit=1&k={apiKey}");
+                            query = query.Remove(0, 1);
+                            query = query.Remove(query.Length - 1, 1);
 
-                        var dict3 = jss.Deserialize<dynamic>(query);
+                            var dict3 = jss.Deserialize<dynamic>(query);
 
-                        _client.GetServer(155403174142803969).GetChannel(219423083537235968).SendMessage($"Recieved pp change of `+{Math.Round(double.Parse(dict["pp_raw"], CultureInfo.InvariantCulture) - OUser.pp, 2)}` by **{OUser.username}**  ({Math.Round(double.Parse(dict["pp_raw"], CultureInfo.InvariantCulture), 2)}pp)\n\nOn https://osu.ppy.sh/b/{dict2["beatmap_id"]}&{OUser.mainMode}\nScore: {string.Format("{0:n0}", int.Parse(dict2["score"]))}  ({calcAcc(dict3, OUser.mainMode)}% , {dict2["maxcombo"]}x)\n{dict2["rank"]}, `{dict3["pp"]}pp`");
+                            _client.GetServer(155403174142803969).GetChannel(219423083537235968).SendMessage($"Recieved pp change of `+{Math.Round(double.Parse(dict["pp_raw"], CultureInfo.InvariantCulture) - OUser.pp, 2)}` by **{OUser.username}**  ({Math.Round(double.Parse(dict["pp_raw"], CultureInfo.InvariantCulture), 2)}pp)\n\nOn https://osu.ppy.sh/b/{dict2["beatmap_id"]}&{OUser.mainMode}\nScore: {string.Format("{0:n0}", int.Parse(dict2["score"]))}  ({calcAcc(dict3, OUser.mainMode)}% , {dict2["maxcombo"]}x)\n{dict2["rank"]}, `{dict3["pp"]}pp`");
 
-                        OUser.updateStats(dict);
+                            OUser.updateStats(dict);
+                        }
                     }
                 }
+                catch { }
             }   
                 
         }

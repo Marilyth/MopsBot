@@ -36,3 +36,6 @@ C:\Users\May\Documents\Visual Studio 2015\Projects\GitHub\MopsBot\MopsBot\bin\De
 C:\Users\May\Documents\Visual Studio 2015\Projects\GitHub\MopsBot\MopsBot\bin\Debug\Nito.AsyncEx.Concurrent.xml
 C:\Users\May\Documents\Visual Studio 2015\Projects\GitHub\MopsBot\MopsBot\bin\Debug\Nito.AsyncEx.Enlightenment.xml
 C:\Users\May\Documents\Visual Studio 2015\Projects\GitHub\MopsBot\MopsBot\bin\Debug\RestSharp.xml
+C:\Users\May\Documents\Visual Studio 2015\Projects\GitHub\Backup\MopsBot\MopsBot\bin\Debug\MopsBot.exe.config
+C:\Users\May\Documents\Visual Studio 2015\Projects\GitHub\Backup\MopsBot\MopsBot\obj\Debug\MopsBot.exe
+C:\Users\May\Documents\Visual Studio 2015\Projects\GitHub\Backup\MopsBot\MopsBot\obj\Debug\MopsBot.pdb
