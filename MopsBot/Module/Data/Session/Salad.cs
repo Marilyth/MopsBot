@@ -21,8 +21,16 @@ namespace MopsBot.Module.Data.Session
 
             int fieldSize = 0;
 
+
+
             foreach (string word in words)
-                if (word.Length +3 > fieldSize) fieldSize = word.Length +3;
+            {
+                string tempWord = word;
+                if (word.ToLower().Equals("random")) tempWord = Information.readURL("http://www.setgetgo.com/randomword/get.php");
+                if (tempWord.Length + 3 > fieldSize) fieldSize = tempWord.Length + 3;
+                if (!tempWord.Equals(word))
+                    words.Where(x => x.Equals(word)).ElementAt(0).Replace(word, tempWord);
+            }
 
             mapset = new Individual.Field[fieldSize, fieldSize];
             for(int i = 0; i< mapset.GetLength(0); i++)
