@@ -23,13 +23,10 @@ namespace MopsBot.Module.Data.Session
 
 
 
-            foreach (string word in words)
+            for (int i = 0; i < words.Count; i++)
             {
-                string tempWord = word;
-                if (word.ToLower().Equals("random")) tempWord = Information.readURL("http://www.setgetgo.com/randomword/get.php");
-                if (tempWord.Length + 3 > fieldSize) fieldSize = tempWord.Length + 3;
-                if (!tempWord.Equals(word))
-                    words.Where(x => x.Equals(word)).ElementAt(0).Replace(word, tempWord);
+                if (words[i].ToLower().Equals("random")) words[i] = Information.readURL("http://www.setgetgo.com/randomword/get.php");
+                if (words[i].Length + 3 > fieldSize) fieldSize = words[i].Length + 3;
             }
 
             mapset = new Individual.Field[fieldSize, fieldSize];
