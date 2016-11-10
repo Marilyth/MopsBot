@@ -15,10 +15,11 @@ namespace MopsBot.Module.Data.Session
         public Hangman(string keyword, int attempts)
         {
             active = true;
-            word = keyword.ToLower() == "random" ? Information.readURL("http://www.setgetgo.com/randomword/get.php") : keyword;
+            word = keyword.ToLower() == "random" ? Information.getRandomWord() : keyword;
             foreach (char c in word) hidden += "-";
             tries = attempts;
             attempt = 0;
+            Console.WriteLine(word);
         }
 
         public string solve(string guess, Discord.User eUser)

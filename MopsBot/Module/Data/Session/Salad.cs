@@ -25,7 +25,7 @@ namespace MopsBot.Module.Data.Session
 
             for (int i = 0; i < words.Count; i++)
             {
-                if (words[i].ToLower().Equals("random")) words[i] = Information.readURL("http://www.setgetgo.com/randomword/get.php");
+                if (words[i].ToLower().Equals("random")) words[i] = Information.getRandomWord();
                 if (words[i].Length + 3 > fieldSize) fieldSize = words[i].Length + 3;
             }
 
@@ -64,6 +64,18 @@ namespace MopsBot.Module.Data.Session
                         y = decider.Next(0, mapset.GetLength(1) - word.Length);
                         guessWords.Add(new Word(x, y, x, y + word.Length-1, word));
                         break;
+                    //case 2:
+                    //    wordDirection = direction.DownRight;
+                    //    x = decider.Next(0, mapset.GetLength(0) - word.Length);
+                    //    y = decider.Next(0, mapset.GetLength(1) - word.Length);
+                    //    guessWords.Add(new Word(x, y, x + word.Length -1, y + word.Length - 1, word));
+                    //    break;
+                    //case 3:
+                    //    wordDirection = direction.UpRight;
+                    //    x = decider.Next(0, mapset.GetLength(0) - word.Length);
+                    //    y = decider.Next(mapset.GetLength(1) - word.Length, mapset.GetLength(1));
+                    //    guessWords.Add(new Word(x, y, x + word.Length -1, y - word.Length + 1, word));
+                    //    break;
                 }
 
                 for (int i = 0; i < word.Length; i++)
@@ -76,8 +88,15 @@ namespace MopsBot.Module.Data.Session
                         case direction.Down:
                             mapset[x, y + i].setChar(char.ToUpper(word[i]));
                             break;
+                        //case direction.DownRight:
+                        //    mapset[x + i, y + i].setChar(char.ToUpper(word[i]));
+                        //    break;
+                        //case direction.UpRight:
+                        //    mapset[x + i, y - i].setChar(char.ToUpper(word[i]));
+                        //    break;
                     }
                 }
+                Console.WriteLine(word +" going "+ wordDirection.ToString());
             }
 
             foreach(Individual.Field field in mapset)
@@ -114,7 +133,7 @@ namespace MopsBot.Module.Data.Session
 
             Word tempWord = guessWords.Where(x => x.Xstart == int.Parse(points[0]) && x.Ystart == int.Parse(points[1]) && x.Xend == int.Parse(points[2]) && x.Yend == int.Parse(points[3])).ElementAt(0);
 
-            if (tempWord != null)
+            if (!string.IsNullOrEmpty(tempWord.word))
             {
                 guessWords.Remove(tempWord);
                 Game.addToBase(pUser, (mapset.GetLength(0) - (tempWord.word.Length - 1)) * tempWord.word.Length);

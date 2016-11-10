@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Web.Script.Serialization;
 using System.Text.RegularExpressions;
 using Discord;
 using Discord.Commands;
@@ -74,8 +75,37 @@ namespace MopsBot.Module
                                                 $"Level: {curLevel} (Experience Bar: {Game.findDataUser(e.User).calcNextLevel()})\n" +
                                                 $"EXP: {Game.findDataUser(e.User).Experience}\n");
                 });
+
+                group.CreateCommand("define")
+                .Description("Searches dictionaries for a definition of the word")
+                .Parameter("Word")
+                .Do(async e =>
+                {
+                    string query = readURL($"http://api.wordnik.com:80/v4/word.json/{e.GetArg(0)}/definitions?limit=1&includeRelated=false&sourceDictionaries=all&useCanonical=true&includeTags=false&api_key=a2a73e7b926c924fad7001ca3111acd55af2ffabf50eb4ae5");
+
+                    //query = query.Remove(0, 1);
+                    //query = query.Remove(query.Length - 1, 1);
+
+                    var jss = new JavaScriptSerializer();
+
+                    dynamic tempDict = jss.Deserialize<dynamic>(query);
+                    tempDict = tempDict[0];
+                    await e.Channel.SendMessage($"__**{tempDict["word"]}**__\n\n``{tempDict["text"]}``");
+                });
             });
         }
+
+        public static string getRandomWord()
+        {
+            string query = readURL("http://api.wordnik.com:80/v4/words.json/randomWord?hasDictionaryDef=true&excludePartOfSpeech=given-name&minCorpusCount=10000&maxCorpusCount=-1&minDictionaryCount=4&maxDictionaryCount=-1&minLength=3&maxLength=13&api_key=a2a73e7b926c924fad7001ca3111acd55af2ffabf50eb4ae5");
+
+            var jss = new JavaScriptSerializer();
+
+            dynamic tempDict = jss.Deserialize<dynamic>(query);
+
+            return tempDict["word"];
+        }
+
         public static string readURL(string URL)
         {
             string s = "";
