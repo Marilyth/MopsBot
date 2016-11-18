@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MopsBot.Module.Data.User
+namespace MopsBot.Module.Data.Individual
 {
     class User
     {
