@@ -89,6 +89,7 @@
     <Compile Include="Module\Data\Session\Hangman.cs" />
     <Compile Include="Module\Data\Session\Poll.cs" />
     <Compile Include="Module\Data\Session\Salad.cs" />
+    <Compile Include="Module\Data\Session\Scramble.cs" />
     <Compile Include="Module\Data\TextInformation.cs" />
     <Compile Include="Module\Data\UserScore.cs" />
     <Compile Include="Module\Game.cs" />

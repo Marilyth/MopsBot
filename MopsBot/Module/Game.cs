@@ -25,6 +25,7 @@ namespace MopsBot.Module
         private Data.Session.Hangman hangman;
         private Data.Session.Bomb bomb;
         private Data.Session.Salad salad;
+        private Data.Session.Scramble scramble;
 
         void IModule.Install(ModuleManager manager)
         {
@@ -217,6 +218,41 @@ namespace MopsBot.Module
                         await e.Channel.SendMessage(output);
                     }
                     else await e.Channel.SendMessage("No session of hangman running, sorry!");
+                });
+            });
+
+            manager.CreateCommands("scramble", group =>
+            {
+                group.CreateCommand("start")
+                .Description("Scramble a word up and guess what it is")
+                .Parameter("Word")
+                .Parameter("Attempts")
+                .Parameter("Server-ID")
+                .Parameter("Channel-ID")
+                .PrivateOnly()
+                .Do(async e =>
+                {
+                    if (scramble == null || !scramble.active)
+                    {
+                        scramble = new Data.Session.Scramble(e.Args[0], int.Parse(e.Args[1]));
+                        await e.User.SendMessage("Done :smiley_cat:");
+                        Channel message = _client.GetServer(ulong.Parse(e.Args[2])).GetChannel(ulong.Parse(e.Args[3]));
+                        await message.SendMessage($"{e.User.Name} started a session of word scrambler!\n\nParticipate by using the **!scramble guess** command!\n\n{scramble.hidden} ({e.Args[1]} false tries allowed)");
+                    }
+                    else await e.User.SendMessage("Currently in use, sorry :frowning:");
+                });
+
+                group.CreateCommand("guess")
+                .Description("Guess the word")
+                .Parameter("Guess")
+                .Do(async e =>
+                {
+                    if (scramble.active)
+                    {
+                        string output = scramble.solve(e.Args[0], e.User);
+                        await e.Channel.SendMessage(output);
+                    }
+                    else await e.Channel.SendMessage("No session of word scrambler running, sorry :frowning:");
                 });
             });
 
