@@ -92,7 +92,8 @@ namespace MopsBot.Module
                     tempDict = tempDict[0];
                     await e.Channel.SendMessage($"__**{tempDict["word"]}**__\n\n``{tempDict["text"]}``");
                 });
-            });
+
+                });
         }
 
         public static string getRandomWord()

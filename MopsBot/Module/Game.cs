@@ -284,20 +284,26 @@ namespace MopsBot.Module
 
                 group.CreateCommand("Score")
                 .Description("get the top scoreboard")
-                .Parameter("(true) to get global ranking", ParameterType.Optional)
+                .Parameter("limit", ParameterType.Optional)
+                .Parameter("global", ParameterType.Optional)
                 .Do(async e =>
                 {
                     List<Data.Individual.User> tempSort = userScores.users.OrderByDescending(u => u.Score).ToList();
 
+                    int limit = 10;
+
+                    if (e.GetArg("limit").Length > 0)
+                        limit = int.Parse(e.GetArg("limit"));
+
                     string output = "";
 
-                    if (e.Args[0] == "")
+                    if (e.GetArg("global") == "")
                     {
                         int count = 0;
 
                         foreach (Data.Individual.User curUser in tempSort)
                         {
-                            if (count >= 10) break;
+                            if (count >= limit) break;
                             count++;
                             try
                             {
@@ -309,9 +315,9 @@ namespace MopsBot.Module
                             }
                         }
                     }
-                    else if (e.Args[0] == "true")
+                    else if (e.GetArg("global") == "true")
                     {
-                        for (int i = 0; i < tempSort.Count; i++)
+                        for (int i = 0; i < limit; i++)
                         {
                             try
                             {
@@ -329,20 +335,26 @@ namespace MopsBot.Module
 
                 group.CreateCommand("Experience")
                 .Description("get the top expboard")
-                .Parameter("(true) to get global ranking", ParameterType.Optional)
+                .Parameter("limit", ParameterType.Optional)
+                .Parameter("global", ParameterType.Optional)
                 .Do(async e =>
                 {
                     List<Data.Individual.User> tempSort = userScores.users.OrderByDescending(u => u.Experience).ToList();
 
+                    int limit = 10;
+
+                    if (e.GetArg("limit").Length > 0)
+                        limit = int.Parse(e.GetArg("limit"));
+
                     string output = "";
 
-                    if (e.Args[0] == "")
+                    if (e.GetArg("global") == "")
                     {
                         int count = 0;
 
                         foreach (Data.Individual.User curUser in tempSort)
                         {
-                            if (count >= 10) break;
+                            if (count >= limit) break;
                             count++;
                             try
                             {
@@ -354,9 +366,9 @@ namespace MopsBot.Module
                             }
                         }
                     }
-                    else if (e.Args[0] == "true")
+                    else if (e.GetArg("global") == "true")
                     {
-                        for (int i = 0; i < tempSort.Count; i++)
+                        for (int i = 0; i < limit; i++)
                         {
                             try
                             {
@@ -374,20 +386,26 @@ namespace MopsBot.Module
 
                 group.CreateCommand("Level")
                 .Description("get the top levelboard")
-                .Parameter("(true) to get global ranking", ParameterType.Optional)
+                .Parameter("limit", ParameterType.Optional)
+                .Parameter("global", ParameterType.Optional)
                 .Do(async e =>
                 {
                     List<Data.Individual.User> tempSort = userScores.users.OrderByDescending(u => u.Level).ToList();
 
+                    int limit = 10;
+
+                    if (e.GetArg("limit").Length > 0)
+                        limit = int.Parse(e.GetArg("limit"));
+
                     string output = "";
 
-                    if (e.Args[0] == "")
+                    if (e.GetArg("global") == "")
                     {
                         int count = 0;
 
                         foreach (Data.Individual.User curUser in tempSort)
                         {
-                            if (count >= 10) break;
+                            if (count >= limit) break;
                             count++;
                             try
                             {
@@ -399,9 +417,9 @@ namespace MopsBot.Module
                             }
                         }
                     }
-                    else if (e.Args[0] == "true")
+                    else if (e.GetArg("global") == "true")
                     {
-                        for (int i = 0; i < tempSort.Count; i++)
+                        for (int i = 0; i < limit; i++)
                         {
                             try
                             {

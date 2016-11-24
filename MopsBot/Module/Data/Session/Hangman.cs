@@ -42,7 +42,7 @@ namespace MopsBot.Module.Data.Session
                 if (attempt >= tries)
                 {
                     this.active = false;
-                    return "You lost! HAHAHAHA";
+                    return $"You lost! HAHAHAHA\nIt was {word}!";
                 }
 
                 return hidden + $" ({tries - attempt} false tries remaining)\nWrong :d";
