@@ -19,12 +19,14 @@ namespace MopsBot.Module
         private ModuleManager _manager;
         private DiscordClient _client;
         private Data.TextInformation info;
+        public static Data.Statistics stats;
 
         void IModule.Install(ModuleManager manager)
         {
             _manager = manager;
             _client = manager.Client;
             info = new Data.TextInformation();
+            stats = new Data.Statistics();
 
             manager.CreateCommands("", group =>
             {
@@ -74,6 +76,14 @@ namespace MopsBot.Module
                     await e.Channel.SendMessage($"${Game.findDataUser(e.User).Score}\n" +
                                                 $"Level: {curLevel} (Experience Bar: {Game.findDataUser(e.User).calcNextLevel()})\n" +
                                                 $"EXP: {Game.findDataUser(e.User).Experience}\n");
+                });
+
+                group.CreateCommand("dayDiagram")
+                .Description("Returns the past x days")
+                .Parameter("count")
+                .Do(async e =>
+                {
+                    await e.Channel.SendMessage(stats.drawDiagram(int.Parse(e.GetArg("count"))));
                 });
 
                 group.CreateCommand("define")

@@ -446,6 +446,7 @@ namespace MopsBot.Module
                 int pre = -1;
                 if (userScores.users.Any(x => x.ID == e.User.Id)) pre = findDataUser(e.User).Level;
                 addToBase(e.User, 0, e.Message.RawText.Length);
+                Information.stats.addValue(e.Message.RawText.Length);
                 if (pre != -1 && pre < findDataUser(e.User).Level) e.Channel.SendMessage($"{e.User.Name} advanced from level {pre} to level {findDataUser(e.User).Level}!");
 
                 if (bomb != null && bomb.active && e.User == bomb.defender)
