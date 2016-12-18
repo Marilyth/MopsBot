@@ -24,12 +24,12 @@ namespace MopsBot.Module.Data
                 days.Add(new Day(data[0], int.Parse(data[1])));
             }
             read.Close();
-
-            days = days.OrderByDescending(x => x.date).ToList();
         }
 
         public void addValue(int increase)
         {
+            today = DateTime.Today.ToString("dd/MM/yyyy");
+
             if (days.Exists(x => x.date.Equals(today)))
                 days.Find(x => x.date.Equals(today)).value += increase;
 
@@ -52,6 +52,8 @@ namespace MopsBot.Module.Data
 
         public string drawDiagram(int count)
         {
+            days = days.OrderByDescending(x => x.date).ToList();
+
             List<Day> tempDays = days.Take(count).ToList();
             tempDays = tempDays.OrderByDescending(x => x.value).ToList();
 

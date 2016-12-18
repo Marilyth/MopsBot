@@ -19,7 +19,7 @@ namespace MopsBot.Module
     internal class Game : IModule
     {
         private ModuleManager _manager;
-        private DiscordClient _client;
+        private static DiscordClient _client;
         private Random ran = new Random();
         public static Data.UserScore userScores;
         private Data.Session.Hangman hangman;
@@ -317,17 +317,7 @@ namespace MopsBot.Module
                     }
                     else if (e.GetArg("global") == "true")
                     {
-                        for (int i = 0; i < limit; i++)
-                        {
-                            try
-                            {
-                                output += $"#{i + 1} ``$ {tempSort[i].Score} $`` by {e.Server.GetUser(tempSort[i].ID).Name}\n";
-                            }
-                            catch (NullReferenceException ex)
-                            {
-                                output += $"#{i + 1} ``$ {tempSort[i].Score} $`` by **global** {findUser(tempSort[i].ID, _client)}\n";
-                            }
-                        }
+                        await e.Channel.SendMessage(userScores.drawDiagram(int.Parse(e.GetArg("limit")), UserScore.DiagramType.Score));
                     }
 
                     await e.Channel.SendMessage(output);
@@ -368,17 +358,7 @@ namespace MopsBot.Module
                     }
                     else if (e.GetArg("global") == "true")
                     {
-                        for (int i = 0; i < limit; i++)
-                        {
-                            try
-                            {
-                                output += $"#{i + 1} ``{tempSort[i].Experience} EXP`` by {e.Server.GetUser(tempSort[i].ID).Name}\n";
-                            }
-                            catch (NullReferenceException ex)
-                            {
-                                output += $"#{i + 1} ``{tempSort[i].Experience} EXP`` by **global** {findUser(tempSort[i].ID, _client)}\n";
-                            }
-                        }
+                        await e.Channel.SendMessage(userScores.drawDiagram(int.Parse(e.GetArg("limit")), UserScore.DiagramType.Experience));
                     }
 
                     await e.Channel.SendMessage(output);
@@ -419,17 +399,7 @@ namespace MopsBot.Module
                     }
                     else if (e.GetArg("global") == "true")
                     {
-                        for (int i = 0; i < limit; i++)
-                        {
-                            try
-                            {
-                                output += $"#{i + 1} ``Level {tempSort[i].Level}`` by {e.Server.GetUser(tempSort[i].ID).Name}\n";
-                            }
-                            catch (NullReferenceException ex)
-                            {
-                                output += $"#{i + 1} ``Level {tempSort[i].Level}`` by **global** {findUser(tempSort[i].ID, _client)}\n";
-                            }
-                        }
+                        await e.Channel.SendMessage(userScores.drawDiagram(int.Parse(e.GetArg("limit")), UserScore.DiagramType.Level));
                     }
 
                     await e.Channel.SendMessage(output);
@@ -515,7 +485,7 @@ namespace MopsBot.Module
             return null;
         }
 
-        public static string findUser(ulong ID, DiscordClient _client)
+        public static string findUser(ulong ID)
         {
             string userName = ID.ToString();
 

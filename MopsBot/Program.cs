@@ -35,7 +35,7 @@ namespace MopsBot
             _client.AddModule<Module.Moderation>("Moderation");
 
 
-            var token = "MjEyOTc1NTYxNzU5MzkxNzQ0.CrQ03A.z_k75FXO07-PJxb4Wmb0xZwJ-ZM";
+            var token = "MjEyOTc1NTYxNzU5MzkxNzQ0.CzVqSA.bt-qpwQ6i014LJ6_OY0M5PusA1Q";
 
             _client.ExecuteAndWait(async () =>
             {
