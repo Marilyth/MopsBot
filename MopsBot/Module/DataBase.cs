@@ -17,14 +17,13 @@ namespace MopsBot.Module
         public static DiscordClient _client;
         private Data.TextInformation info;
         private Data.Osu_Data osuInfo;
+        private Data.Overwatch_Data owInfo;
         private string apiKey = "8ad11f6daf7b439f96eee1c256d474cd9925d4d8";
 
 
         void IModule.Install(ModuleManager manager)
         {
             _client = manager.Client;
-
-            List<Server> test = new List<Server>(_client.FindServers("PhunkRoyal Community"));
 
             info = new Data.TextInformation();
             updater = new Timer(60000);
@@ -252,8 +251,39 @@ namespace MopsBot.Module
                         await e.Channel.SendMessage(output);
                     });
                 });
-
             });
+
+            manager.CreateCommands("overwatch", group =>
+                {
+                    group.CreateCommand("user")
+                    .Description("Returns user stats")
+                    .Parameter("Battletag")
+                    .Do(async e =>
+                    {
+                        await e.Channel.SendMessage(Data.OW_User.statsToString(e.GetArg("Battletag")));
+                    });
+
+                    group.CreateCommand("signup")
+                    .Description("In development")
+                    .Parameter("Battletag")
+                    .Do(async e =>
+                    {
+                        if (owInfo == null) await e.Channel.SendMessage("Try again in around a minute o3o");
+
+                        if (owInfo.OW_Users.Exists(x => x.discordID == e.User.Id))
+                            owInfo.OW_Users.Find(x => x.discordID == e.User.Id).channels.Add(e.Channel);
+
+                        else
+                        {
+                            owInfo.OW_Users.Add(new Data.OW_User(e.User.Id, e.GetArg("Battletag"), e.Channel));
+                        }
+
+                        owInfo.writeInformation();
+
+                        await e.Channel.SendMessage($"Signed you up on {e.Channel.Id} ({e.Channel.Name})\n" +
+                                                    $"Keeping track of your **IN DEVELOPMENT**");
+                    });
+                });
         }
 
         private void Updater_Elapsed(object sender, ElapsedEventArgs e)
@@ -261,6 +291,7 @@ namespace MopsBot.Module
             if(osuInfo == null)
             {
                 osuInfo = new Data.Osu_Data();
+                owInfo = new Data.Overwatch_Data();
                 return;
             }
 

@@ -18,8 +18,6 @@ namespace MopsBot.Module.Data
         {
             StreamReader read = new StreamReader("data//osuid.txt");
 
-            string[] s = read.ReadLine().Split(':');
-
             string stats = "";
             while ((stats = read.ReadLine()) != null)
             {

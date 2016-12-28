@@ -82,6 +82,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Module\DataBase.cs" />
+    <Compile Include="Module\Data\Overwatch_Data.cs" />
     <Compile Include="Module\Data\Statistics.cs" />
     <Compile Include="Module\Data\Individual\Field.cs" />
     <Compile Include="Module\Data\Individual\User.cs" />
