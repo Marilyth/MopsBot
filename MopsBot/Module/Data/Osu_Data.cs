@@ -1,4 +1,5 @@
 ﻿using System;
+using Discord;
 using System.Globalization;
 using System.Web.Script.Serialization;
 using System.Collections.Generic;
@@ -17,11 +18,18 @@ namespace MopsBot.Module.Data
         {
             StreamReader read = new StreamReader("data//osuid.txt");
 
-            string s = "";
-            while((s = read.ReadLine()) != null)
+            string[] s = read.ReadLine().Split(':');
+
+            string stats = "";
+            while ((stats = read.ReadLine()) != null)
             {
-                s.Split(':');
-                osuUsers.Add(new osuUser(ulong.Parse(s.Split(':')[0]), s.Split(':')[1], s.Split(':')[2]));
+                string[] data = stats.Split(':');
+                if (osuUsers.Exists(x => x.discordID == ulong.Parse(data[1])))
+                    osuUsers.Find(x => x.discordID == ulong.Parse(data[1])).channels.Add(DataBase.getChannel(ulong.Parse(data[0])));
+                else
+                {
+                    osuUsers.Add(new osuUser(ulong.Parse(data[1]), data[2], data[3], DataBase.getChannel(ulong.Parse(data[0]))));
+                }
             }
 
             read.Close();
@@ -33,7 +41,8 @@ namespace MopsBot.Module.Data
 
             foreach(osuUser user in osuUsers)
             {
-                write.WriteLine($"{user.discordID}:{user.ident}:{user.mainMode}");
+                foreach (Channel ch in user.channels)
+                    write.WriteLine($"{ch.Id}:{user.discordID}:{user.ident}:{user.mainMode}");
             }
 
             write.Close();
@@ -46,20 +55,25 @@ namespace MopsBot.Module.Data
         public double accuracy, pp;
         public ulong score, playcount;
         public ulong discordID;
+        public List<Channel> channels;
 
-        public osuUser(ulong disID, string osuID, string mode)
+        public osuUser(ulong disID, string osuID, string mode, Channel channel)
         {
+            channels = new List<Channel>();
             ident = osuID;
             discordID = disID;
             mainMode = mode;
+            channels.Add(channel);
             updateStats();
         }
 
-        public osuUser(ulong disID, string osuID)
+        public osuUser(ulong disID, string osuID, Channel channel)
         {
+            channels = new List<Channel>();
             ident = osuID;
             discordID = disID;
             mainMode = "m=0";
+            channels.Add(channel);
             updateStats();
         }
 

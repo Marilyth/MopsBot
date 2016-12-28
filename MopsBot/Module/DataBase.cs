@@ -13,9 +13,8 @@ namespace MopsBot.Module
 {
     internal class DataBase : IModule
     {
-        private ModuleManager _manager;
         private Timer updater;
-        private DiscordClient _client;
+        public static DiscordClient _client;
         private Data.TextInformation info;
         private Data.Osu_Data osuInfo;
         private string apiKey = "8ad11f6daf7b439f96eee1c256d474cd9925d4d8";
@@ -23,14 +22,14 @@ namespace MopsBot.Module
 
         void IModule.Install(ModuleManager manager)
         {
+            _client = manager.Client;
+
+            List<Server> test = new List<Server>(_client.FindServers("PhunkRoyal Community"));
+
             info = new Data.TextInformation();
-            osuInfo = new Data.Osu_Data();
             updater = new Timer(60000);
             updater.Elapsed += Updater_Elapsed;
             updater.Start();
-
-            _manager = manager;
-            _client = manager.Client;
 
             _client.MessageReceived += _client_MessageReceived;
 
@@ -113,15 +112,21 @@ namespace MopsBot.Module
                 .Parameter("name")
                 .Do(async e =>
                 {
-                    if (osuInfo.osuUsers.Find(x => x.discordID == e.User.Id) != null) return;
+                    if (osuInfo.osuUsers.Exists(x => x.discordID == e.User.Id))
+                        osuInfo.osuUsers.Find(x => x.discordID == e.User.Id).channels.Add(e.Channel);
 
-                    var dict = Module.Data.osuUser.userStats(e.GetArg("name"));
+                    else
+                    {
+                        var dict = Module.Data.osuUser.userStats(e.GetArg("name"));
 
-                    osuInfo.osuUsers.Add(new Data.osuUser(e.User.Id, dict["user_id"]));
+                        osuInfo.osuUsers.Add(new Data.osuUser(e.User.Id, dict["user_id"], e.Channel));
+                    }
 
                     osuInfo.writeInformation();
 
-                    await e.Channel.SendMessage("Signed you up, " + dict["username"] + ".");
+                    await e.Channel.SendMessage($"Signed you up on {e.Channel.Id} ({e.Channel.Name})\n" +
+                                                $"Keeping track of your **{osuInfo.osuUsers.Find(x => x.discordID == e.User.Id).modeToString()}** pp.\n" +
+                                                $"Change the game mode by using the !setMainMode command.");
                 });
 
                 group.CreateCommand("setMainMode")
@@ -129,7 +134,7 @@ namespace MopsBot.Module
                 .Parameter("Mode")
                 .Do(async e =>
                 {
-                    if (osuInfo.osuUsers.Find(x => x.discordID == e.User.Id) == null) return;
+                    if (!osuInfo.osuUsers.Exists(x => x.discordID == e.User.Id)) return;
 
                     osuInfo.osuUsers.Find(x => x.discordID == e.User.Id).mainMode = "m=" + e.GetArg("Mode");
                     osuInfo.osuUsers.Find(x => x.discordID == e.User.Id).updateStats();
@@ -253,11 +258,17 @@ namespace MopsBot.Module
 
         private void Updater_Elapsed(object sender, ElapsedEventArgs e)
         {
-            foreach(Data.osuUser OUser in osuInfo.osuUsers)
+            if(osuInfo == null)
+            {
+                osuInfo = new Data.Osu_Data();
+                return;
+            }
+
+            foreach (Data.osuUser OUser in osuInfo.osuUsers)
             {
                 try
                 {
-                    if (_client.GetServer(155403174142803969).GetUser(OUser.discordID).Status.Value.Equals(UserStatus.Online.Value))
+                    if (OUser.channels[0].GetUser(OUser.discordID).Status.Value.Equals(UserStatus.Online.Value))
                     {
                         dynamic dict = Data.osuUser.userStats(OUser.ident.ToString(), OUser.mainMode);
                         if (OUser.pp < double.Parse(dict["pp_raw"], CultureInfo.InvariantCulture))
@@ -276,7 +287,10 @@ namespace MopsBot.Module
 
                             var dict3 = jss.Deserialize<dynamic>(query);
 
-                            _client.GetServer(155403174142803969).GetChannel(219423083537235968).SendMessage($"Recieved pp change of `+{Math.Round(double.Parse(dict["pp_raw"], CultureInfo.InvariantCulture) - OUser.pp, 2)}` by **{OUser.username}**  ({Math.Round(double.Parse(dict["pp_raw"], CultureInfo.InvariantCulture), 2)}pp)\n\nOn https://osu.ppy.sh/b/{dict2["beatmap_id"]}&{OUser.mainMode}\nScore: {string.Format("{0:n0}", int.Parse(dict2["score"]))}  ({calcAcc(dict3, OUser.mainMode)}% , {dict2["maxcombo"]}x)\n{dict2["rank"]}, `{dict3["pp"]}pp`");
+                            string output = $"Recieved pp change of `+{Math.Round(double.Parse(dict["pp_raw"], CultureInfo.InvariantCulture) - OUser.pp, 2)}` by **{OUser.username}**  ({Math.Round(double.Parse(dict["pp_raw"], CultureInfo.InvariantCulture), 2)}pp)\n\nOn https://osu.ppy.sh/b/{dict2["beatmap_id"]}&{OUser.mainMode}\nScore: {string.Format("{0:n0}", int.Parse(dict2["score"]))}  ({calcAcc(dict3, OUser.mainMode)}% , {dict2["maxcombo"]}x)\n{dict2["rank"]}, `{dict3["pp"]}pp`";
+
+                            foreach (Channel ch in OUser.channels)
+                                ch.SendMessage(output);
 
                             OUser.updateStats(dict);
                         }
@@ -366,6 +380,12 @@ namespace MopsBot.Module
                     return Math.Round(accuracy*100m, 2);
             }
             return 0;
+        }
+
+        public static Channel getChannel(ulong ID)
+        {
+            Channel test = _client.GetChannel(219423083537235968);
+            return _client.GetChannel(ID);
         }
 
         enum Mods
