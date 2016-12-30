@@ -45,6 +45,32 @@ namespace MopsBot.Module.Data
 
             write.Close();
         }
+
+        public string drawDiagram(int count)
+        {
+            OW_Users = OW_Users.OrderByDescending(x => x.rank).ToList();
+
+            List<OW_User> tempUsers = OW_Users.Take(count).ToList();
+
+            int maximum = tempUsers[0].rank;
+
+            string[] lines = new string[count];
+
+            for (int i = 0; i < count; i++)
+            {
+                lines[i] = (i + 1) < 10 ? $"#{i + 1} |" : $"#{i + 1}|";
+                double relPercent = OW_Users[i].rank / ((double)maximum / 10);
+                for (int j = 0; j < relPercent; j++)
+                {
+                    lines[i] += "■";
+                }
+                lines[i] += $" ({OW_Users[i].rank} / {OW_Users[i].username})";
+            }
+
+            string output = "```" + string.Join("\n", lines) + "```";
+
+            return output;
+        }
     }
 
     class OW_User
@@ -110,6 +136,29 @@ namespace MopsBot.Module.Data
             compWins = int.Parse(dict["games"]["competitive"]["wins"]);
             compLost = dict["games"]["competitive"]["lost"];
             rank = int.Parse(dict["competitive"]["rank"]);
+        }
+
+        public string trackChange()
+        {
+            OW_User compare = (OW_User)this.MemberwiseClone();
+
+            if (compare.username.Equals("Raptor"))
+                compare.level = 0;
+
+            updateStats();
+
+            string output = "";
+
+            if (compare.level != level)
+                output += $"Tracked level advancement of {compare.level} to **{level}** by **{username}**!\n";
+            if (compare.quickWins != quickWins)
+                output += $"**{username}** has won another quick match! ({quickWins})\n";
+            if (compare.compWins != compWins)
+                output += $"**{username}** has won another competitive match! ({compWins})\n";
+            if (compare.rank != rank)
+                output += $"**{username}** advanced from rank {compare.rank} to rank **{rank}**!";
+
+            return output;
         }
     }
 }

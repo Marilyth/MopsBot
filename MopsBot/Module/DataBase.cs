@@ -26,7 +26,7 @@ namespace MopsBot.Module
             _client = manager.Client;
 
             info = new Data.TextInformation();
-            updater = new Timer(60000);
+            updater = new Timer(10000);
             updater.Elapsed += Updater_Elapsed;
             updater.Start();
 
@@ -153,103 +153,29 @@ namespace MopsBot.Module
                     await e.Channel.SendMessage($"Name: {OUser.username}\nScore: {OUser.score} ({Math.Round(OUser.accuracy, 2)}%)\nPP: {OUser.pp}  {OUser.mainMode}\n\nhttps://osu.ppy.sh/u/{OUser.ident}");
                 });
 
-                group.CreateGroup("ranking", RankingGroup =>
+                group.CreateCommand("ranking")
+                .Description("returns pp leaderboard")
+                .Do(async e =>
                 {
-                    RankingGroup.CreateCommand("pp")
-                    .Do(async e =>
+                    osuInfo.osuUsers.Sort((y, x) => x.pp.CompareTo(y.pp));
+                    string output = "";
+
+                    int count = 0;
+
+                    foreach (Data.osuUser curUser in osuInfo.osuUsers)
                     {
-                        osuInfo.osuUsers.Sort((y,x) => x.pp.CompareTo(y.pp));
-                        string output = "";
-
-                            int count = 0;
-
-                            foreach (Data.osuUser curUser in osuInfo.osuUsers)
-                            {
-                                count++;
-                                try
-                                {
-                                    output += $"#{count} ``PP: {curUser.pp}`` by **{e.Server.GetUser(curUser.discordID).Name}** ({curUser.username})\n";
-                                }
-                                catch (NullReferenceException ex)
-                                {
-                                    count--;
-                                }
-                            }
-
-                        await e.Channel.SendMessage(output);
-                    });
-
-                    RankingGroup.CreateCommand("acc")
-                    .Do(async e =>
-                    {
-                        osuInfo.osuUsers.Sort((y, x) => x.accuracy.CompareTo(y.accuracy));
-                        string output = "";
-
-                        int count = 0;
-
-                        foreach (Data.osuUser curUser in osuInfo.osuUsers)
+                        count++;
+                        try
                         {
-                            count++;
-                            try
-                            {
-                                output += $"#{count} ``{Math.Round(curUser.accuracy, 2)}%`` by **{e.Server.GetUser(curUser.discordID).Name}** ({curUser.username})\n";
-                            }
-                            catch (NullReferenceException ex)
-                            {
-                                count--;
-                            }
+                            output += $"#{count} ``PP: {curUser.pp}`` by **{e.Server.GetUser(curUser.discordID).Name}** ({curUser.username})\n";
                         }
-
-                        await e.Channel.SendMessage(output);
-                    });
-
-                    RankingGroup.CreateCommand("score")
-                    .Do(async e =>
-                    {
-                        osuInfo.osuUsers.Sort((y, x) => x.score.CompareTo(y.score));
-                        string output = "";
-
-                        int count = 0;
-
-                        foreach (Data.osuUser curUser in osuInfo.osuUsers)
+                        catch (NullReferenceException ex)
                         {
-                            count++;
-                            try
-                            {
-                                output += $"#{count} ``{curUser.score}`` by **{e.Server.GetUser(curUser.discordID).Name}** ({curUser.username})\n";
-                            }
-                            catch (NullReferenceException ex)
-                            {
-                                count--;
-                            }
+                            count--;
                         }
+                    }
 
-                        await e.Channel.SendMessage(output);
-                    });
-
-                    RankingGroup.CreateCommand("playcount")
-                    .Do(async e =>
-                    {
-                        osuInfo.osuUsers.Sort((y, x) => x.playcount.CompareTo(y.playcount));
-                        string output = "";
-
-                        int count = 0;
-
-                        foreach (Data.osuUser curUser in osuInfo.osuUsers)
-                        {
-                            count++;
-                            try
-                            {
-                                output += $"#{count} ``{curUser.playcount}`` by **{e.Server.GetUser(curUser.discordID).Name}** ({curUser.username})\n";
-                            }
-                            catch (NullReferenceException ex)
-                            {
-                                count--;
-                            }
-                        }
-
-                        await e.Channel.SendMessage(output);
-                    });
+                    await e.Channel.SendMessage(output);
                 });
             });
 
@@ -283,13 +209,29 @@ namespace MopsBot.Module
                         await e.Channel.SendMessage($"Signed you up on {e.Channel.Id} ({e.Channel.Name})\n" +
                                                     $"Keeping track of your **IN DEVELOPMENT**");
                     });
+
+                    group.CreateCommand("getStats")
+                    .Description("Returns your OW stats")
+                    .Do(async e =>
+                    {
+                        await e.Channel.SendMessage(owInfo.OW_Users.Find(x => x.discordID == e.User.Id).statsToString());
+                    });
+
+                    group.CreateCommand("ranking")
+                    .Description("Returns top limit ranked users")
+                    .Parameter("Limit")
+                    .Do(async e =>
+                    {
+                        await e.Channel.SendMessage(owInfo.drawDiagram(int.Parse(e.GetArg("Limit"))));
+                    });
                 });
         }
 
         private void Updater_Elapsed(object sender, ElapsedEventArgs e)
         {
-            if(osuInfo == null)
+            if(osuInfo == null && owInfo == null)
             {
+                updater.Interval = 60000;
                 osuInfo = new Data.Osu_Data();
                 owInfo = new Data.Overwatch_Data();
                 return;
@@ -328,7 +270,16 @@ namespace MopsBot.Module
                     }
                 }
                 catch { }
-            }   
+            } 
+            
+            foreach(Data.OW_User user in owInfo.OW_Users)
+            {
+                    string tracker = user.trackChange();
+
+                    if (!tracker.Equals(""))
+                        foreach (Channel ch in user.channels)
+                            ch.SendMessage(tracker);
+            }  
                 
         }
 
