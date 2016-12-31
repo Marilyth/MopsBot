@@ -10,7 +10,7 @@ namespace MopsBot.Module.Data
     class Statistics
     {
         public List<Day> days = new List<Day>();
-        public string today = DateTime.Today.ToString("dd/MM/yyyy");
+        public DateTime today = DateTime.Today;
 
         public Statistics()
         {
@@ -28,12 +28,12 @@ namespace MopsBot.Module.Data
 
         public void addValue(int increase)
         {
-            today = DateTime.Today.ToString("dd/MM/yyyy");
+            today = DateTime.Today;
 
             if (days.Exists(x => x.date.Equals(today)))
                 days.Find(x => x.date.Equals(today)).value += increase;
 
-            else days.Add(new Day(today, increase));
+            else days.Add(new Day(today.ToString("dd/MM/yyyy"), increase));
 
             saveData();
         }
@@ -44,7 +44,7 @@ namespace MopsBot.Module.Data
 
             foreach(Day cur in days)
             {
-                write.WriteLine($"{cur.date}:{cur.value}");
+                write.WriteLine($"{cur.date.ToString("dd/MM/yyyy")}:{cur.value}");
             }
 
             write.Close();
@@ -63,7 +63,7 @@ namespace MopsBot.Module.Data
 
             for(int i = 0; i < count; i++)
             {
-                lines[i] = $"{days[i].date}|";
+                lines[i] = $"{days[i].date.ToString("dd/MM/yyyy")}|";
                 double relPercent = days[i].value / ((double)maximum / 10);
                 for(int j = 0; j < relPercent; j++)
                 {
@@ -80,12 +80,12 @@ namespace MopsBot.Module.Data
 
     class Day
     {
-        public string date;
+        public DateTime date;
         public int value;
 
         public Day(string pDate, int pValue)
         {
-            date = pDate;
+            date = DateTime.ParseExact(pDate, "dd.MM.yyyy", System.Globalization.CultureInfo.InvariantCulture);
             value = pValue;
         }
     }

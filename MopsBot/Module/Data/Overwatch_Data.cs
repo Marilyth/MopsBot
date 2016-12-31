@@ -142,9 +142,6 @@ namespace MopsBot.Module.Data
         {
             OW_User compare = (OW_User)this.MemberwiseClone();
 
-            if (compare.username.Equals("Raptor"))
-                compare.level = 0;
-
             updateStats();
 
             string output = "";
