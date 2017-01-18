@@ -43,7 +43,7 @@ namespace MopsBot.Module.Data.Individual
             double expCurrentHold = Experience - levelCalc(Level);
             string output = "", TempOutput = "";
             double diffExperience = levelCalc(Level + 1) - levelCalc(Level);
-            for (int i = 0; i < (expCurrentHold/(diffExperience/10)); i++)
+            for (int i = 0; i < Math.Floor(expCurrentHold/(diffExperience/10)); i++)
             {
                 output += "■";
             }

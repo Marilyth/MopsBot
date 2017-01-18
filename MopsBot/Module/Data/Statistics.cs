@@ -69,10 +69,10 @@ namespace MopsBot.Module.Data
                 {
                     lines[i] += "■";
                 }
-                lines[i] += $" ({days[i].value})";
+                lines[i] += $" {days[i].value}";
             }
 
-            string output = "```" + string.Join("\n", lines) + "```";
+            string output = "```coq\n" + string.Join("\n", lines) + "```";
 
             return output;
         }

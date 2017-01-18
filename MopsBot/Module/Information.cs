@@ -47,6 +47,18 @@ namespace MopsBot.Module
                     await e.Channel.SendMessage("https://discordapp.com/oauth2/authorize?client_id=212975561759391744&scope=bot&permissions=66186303");
                 });
 
+                group.CreateCommand("onlineCount")
+                .Hide()
+                .Do(async e =>
+                {
+                    int count = 0;
+                    foreach (User testUser in e.Server.Users)
+                        if (testUser.Status.Value.Equals(UserStatus.Online.Value))
+                            count++;
+
+                    await e.Channel.SendMessage($"{count} users in this server are online.");
+                });
+
                 group.CreateCommand("con")
                 .Description("Converts your text.")
                 .Parameter("Text", ParameterType.Unparsed)

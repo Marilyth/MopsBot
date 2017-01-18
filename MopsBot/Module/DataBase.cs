@@ -274,11 +274,15 @@ namespace MopsBot.Module
             
             foreach(Data.OW_User user in owInfo.OW_Users)
             {
+                //if (!user.channels[0].GetUser(user.discordID).Status.Value.Equals(UserStatus.Offline.Value)
+                //    && user.channels[0].GetUser(user.discordID).CurrentGame.Value.Equals("Overwatch"))
+                {
                     string tracker = user.trackChange();
 
                     if (!tracker.Equals(""))
                         foreach (Channel ch in user.channels)
                             ch.SendMessage(tracker);
+                }
             }  
                 
         }

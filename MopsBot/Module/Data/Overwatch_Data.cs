@@ -64,10 +64,10 @@ namespace MopsBot.Module.Data
                 {
                     lines[i] += "■";
                 }
-                lines[i] += $" ({OW_Users[i].rank} / {OW_Users[i].username})";
+                lines[i] += $" {OW_Users[i].rank} / {OW_Users[i].username}";
             }
 
-            string output = "```" + string.Join("\n", lines) + "```";
+            string output = "```coq\n" + string.Join("\n", lines) + "```";
 
             return output;
         }
@@ -135,7 +135,7 @@ namespace MopsBot.Module.Data
             quickWins = int.Parse(dict["games"]["quick"]["wins"]);
             compWins = int.Parse(dict["games"]["competitive"]["wins"]);
             compLost = dict["games"]["competitive"]["lost"];
-            rank = int.Parse(dict["competitive"]["rank"]);
+            try { rank = int.Parse(dict["competitive"]["rank"]); } catch (Exception) { rank = 0; }
         }
 
         public string trackChange()
@@ -149,9 +149,9 @@ namespace MopsBot.Module.Data
             if (compare.level != level)
                 output += $"Tracked level advancement of {compare.level} to **{level}** by **{username}**!\n";
             if (compare.quickWins != quickWins)
-                output += $"**{username}** has won another quick match! ({quickWins})\n";
+                output += $"**{username}** has won another quick match! ({compare.quickWins} - **{quickWins}**)\n";
             if (compare.compWins != compWins)
-                output += $"**{username}** has won another competitive match! ({compWins})\n";
+                output += $"**{username}** has won another competitive match! ({compare.compWins} - **{compWins}**)\n";
             if (compare.rank != rank)
                 output += $"**{username}** advanced from rank {compare.rank} to rank **{rank}**!";
 
