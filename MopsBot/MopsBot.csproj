@@ -108,7 +108,7 @@
     <WCFMetadata Include="Service References\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\..\..\Desktop\dotnet\ChatterBotAPI\ChatterBotAPI.csproj">
+    <ProjectReference Include="..\..\..\..\..\..\Desktop\Unnützes\dotnet\ChatterBotAPI\ChatterBotAPI.csproj">
       <Project>{2e624962-f155-432c-a90a-e1ce75dee9ea}</Project>
       <Name>ChatterBotAPI</Name>
     </ProjectReference>

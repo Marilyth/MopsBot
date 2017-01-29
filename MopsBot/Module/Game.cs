@@ -21,7 +21,7 @@ namespace MopsBot.Module
         private ModuleManager _manager;
         private static DiscordClient _client;
         private Random ran = new Random();
-        public static Data.UserScore userScores;
+        public static UserScore userScores;
         private Data.Session.Hangman hangman;
         private Data.Session.Bomb bomb;
         private Data.Session.Salad salad;

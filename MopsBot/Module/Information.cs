@@ -100,7 +100,7 @@ namespace MopsBot.Module
 
                 group.CreateCommand("define")
                 .Description("Searches dictionaries for a definition of the word")
-                .Parameter("Word")
+                .Parameter("Word", ParameterType.Unparsed)
                 .Do(async e =>
                 {
                     string query = readURL($"http://api.wordnik.com:80/v4/word.json/{e.GetArg(0)}/definitions?limit=1&includeRelated=false&sourceDictionaries=all&useCanonical=true&includeTags=false&api_key=a2a73e7b926c924fad7001ca3111acd55af2ffabf50eb4ae5");
@@ -115,7 +115,42 @@ namespace MopsBot.Module
                     await e.Channel.SendMessage($"__**{tempDict["word"]}**__\n\n``{tempDict["text"]}``");
                 });
 
+                group.CreateCommand("translate")
+                .Description("Japanese <-> English translation")
+                .Parameter("Word", ParameterType.Unparsed)
+                .Do(async e =>
+                {
+                    string query = readURL($"http://jisho.org/api/v1/search/words?keyword={e.GetArg("Word")}");
+
+                    int count = 1;
+
+                    var jss = new JavaScriptSerializer();
+
+                    dynamic tempDict = jss.Deserialize<dynamic>(query);
+                    tempDict = tempDict["data"];
+
+                    string output = $"``{e.GetArg("Word")}``\n```";
+                    foreach (var subDict in tempDict)
+                    {
+                        if (count > 20) break;
+
+                        try
+                        {
+                            output += $"\n{count}. {subDict["japanese"][0]["word"]} ({subDict["japanese"][0]["reading"]}): ";
+                        }
+                        catch { output += $"\n{count}. {subDict["japanese"][0]["reading"]}: "; }
+                        foreach(var senseDict in subDict["senses"])
+                        {
+                            output += senseDict["english_definitions"][0] + "| ";
+                        }
+                        count++;
+                    }
+
+                    await e.Channel.SendMessage(output + "\n```");
+                    
                 });
+
+            });
         }
 
         public static string getRandomWord()
