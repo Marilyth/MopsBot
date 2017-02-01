@@ -115,7 +115,7 @@ namespace MopsBot.Module
                     await e.Channel.SendMessage($"__**{tempDict["word"]}**__\n\n``{tempDict["text"]}``");
                 });
 
-                group.CreateCommand("translate")
+                group.CreateCommand("dictionary")
                 .Description("Japanese <-> English translation")
                 .Parameter("Word", ParameterType.Unparsed)
                 .Do(async e =>
@@ -132,22 +132,42 @@ namespace MopsBot.Module
                     string output = $"``{e.GetArg("Word")}``\n```";
                     foreach (var subDict in tempDict)
                     {
-                        if (count > 20) break;
-
                         try
                         {
-                            output += $"\n{count}. {subDict["japanese"][0]["word"]} ({subDict["japanese"][0]["reading"]}): ";
+                            if (count > 20) break;
+
+                            try
+                            {
+                                output += $"\n{count}. {subDict["japanese"][0]["word"]} ({subDict["japanese"][0]["reading"]}): ";
+                            }
+                            catch { output += $"\n{count}. {subDict["japanese"][0]["reading"]}: "; }
+                            foreach (var senseDict in subDict["senses"])
+                            {
+                                output += senseDict["english_definitions"][0] + "| ";
+                            }
+                            count++;
                         }
-                        catch { output += $"\n{count}. {subDict["japanese"][0]["reading"]}: "; }
-                        foreach(var senseDict in subDict["senses"])
-                        {
-                            output += senseDict["english_definitions"][0] + "| ";
-                        }
-                        count++;
+                        catch(Exception ex) { Console.Write(ex.Message); }
                     }
 
                     await e.Channel.SendMessage(output + "\n```");
                     
+                });
+
+                group.CreateCommand("translate")
+                .Hide()
+                .Parameter("SourceLanguage")
+                .Parameter("Language")
+                .Parameter("Text", ParameterType.Unparsed)
+                .Do(async e =>
+                {
+                    string query = readURL($"http://www.transltr.org/api/translate?text={e.GetArg("Text")}&to={e.GetArg("Language")}&from={e.GetArg("SourceLanguage")}");
+
+                    var jss = new JavaScriptSerializer();
+
+                    dynamic tempDict = jss.Deserialize<dynamic>(query);
+
+                    await e.Channel.SendMessage(tempDict["translationText"]);
                 });
 
             });
