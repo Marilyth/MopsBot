@@ -93,7 +93,7 @@ namespace MopsBot.Module.Data
         public static dynamic userStats(string battleTag)
         {
             battleTag = battleTag.Replace("#", "-");
-            string query = Information.readURL($"https://api.lootbox.eu/pc/eu/{battleTag}/profile");
+            string query = Information.readURL($"http://ow-api.herokuapp.com/profile/pc/eu/{battleTag}");
 
             var jss = new JavaScriptSerializer();
             return jss.Deserialize<dynamic>(query);
@@ -107,7 +107,7 @@ namespace MopsBot.Module.Data
 
             string username = dict["username"];
             int level = level = dict["level"];
-            string qWins = dict["games"]["quick"]["wins"];
+            string qWins = dict["games"]["quickplay"]["wins"];
             string cWins = dict["games"]["competitive"]["wins"];
             int cLost = dict["games"]["competitive"]["lost"];
             string rank = dict["competitive"]["rank"];
@@ -128,13 +128,10 @@ namespace MopsBot.Module.Data
         {
             var dict = userStats(battletag);
 
-            dict = dict["data"];
-
             username = dict["username"];
             level = dict["level"];
-            quickWins = int.Parse(dict["games"]["quick"]["wins"]);
+            quickWins = int.Parse(dict["games"]["quickplay"]["wins"]);
             compWins = int.Parse(dict["games"]["competitive"]["wins"]);
-            compLost = dict["games"]["competitive"]["lost"];
             try { rank = int.Parse(dict["competitive"]["rank"]); } catch (Exception) { rank = 0; }
         }
 

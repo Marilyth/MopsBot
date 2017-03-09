@@ -157,25 +157,7 @@ namespace MopsBot.Module
                 .Description("returns pp leaderboard")
                 .Do(async e =>
                 {
-                    osuInfo.osuUsers.Sort((y, x) => x.pp.CompareTo(y.pp));
-                    string output = "";
-
-                    int count = 0;
-
-                    foreach (Data.osuUser curUser in osuInfo.osuUsers)
-                    {
-                        count++;
-                        try
-                        {
-                            output += $"#{count} ``PP: {curUser.pp}`` by **{e.Server.GetUser(curUser.discordID).Name}** ({curUser.username})\n";
-                        }
-                        catch (NullReferenceException ex)
-                        {
-                            count--;
-                        }
-                    }
-
-                    await e.Channel.SendMessage(output);
+                    await e.Channel.SendMessage(osuInfo.drawDiagram(e.Server));
                 });
             });
 
@@ -233,7 +215,7 @@ namespace MopsBot.Module
             {
                 updater.Interval = 60000;
                 osuInfo = new Data.Osu_Data();
-                //owInfo = new Data.Overwatch_Data();
+                owInfo = new Data.Overwatch_Data();
                 return;
             }
 
@@ -241,10 +223,10 @@ namespace MopsBot.Module
             {
                 try
                 {
-                    if (OUser.channels[0].GetUser(OUser.discordID).Status.Value.Equals(UserStatus.Online.Value))
+                    if (OUser.channels[0].GetUser(OUser.discordID).Status.Value.Equals(UserStatus.Online.Value) || OUser.channels[0].Id.Equals(226499471683485697))
                     {
                         dynamic dict = Data.osuUser.userStats(OUser.ident.ToString(), OUser.mainMode);
-                        if (OUser.pp < double.Parse(dict["pp_raw"], CultureInfo.InvariantCulture))
+                        if (OUser.pp + 1 <= double.Parse(dict["pp_raw"], CultureInfo.InvariantCulture))
                         {
                             string query = Information.readURL($"https://osu.ppy.sh/api/get_user_recent?u={OUser.ident}&{OUser.mainMode}&limit=1&k={apiKey}");
                             query = query.Remove(0, 1);
@@ -267,24 +249,26 @@ namespace MopsBot.Module
 
                             OUser.updateStats(dict);
                         }
+                        else if (OUser.pp < double.Parse(dict["pp_raw"], CultureInfo.InvariantCulture))
+                            OUser.updateStats(dict);
                     }
                 }
                 catch { }
-            } 
-            
-            ////foreach(Data.OW_User user in owInfo.OW_Users)
-            //{
-            //    //if (!user.channels[0].GetUser(user.discordID).Status.Value.Equals(UserStatus.Offline.Value)
-            //    //    && user.channels[0].GetUser(user.discordID).CurrentGame.Value.Equals("Overwatch"))
-            //    {
-            //        string tracker = user.trackChange();
+            }
 
-            //        if (!tracker.Equals(""))
-            //            foreach (Channel ch in user.channels)
-            //                ch.SendMessage(tracker);
-            //    }
-            //}  
-                
+            foreach (Data.OW_User user in owInfo.OW_Users)
+            {
+                if (!user.channels[0].GetUser(user.discordID).Status.Value.Equals(UserStatus.Offline.Value)
+                    && user.channels[0].GetUser(user.discordID).CurrentGame.Value.Equals("Overwatch"))
+                {
+                    string tracker = user.trackChange();
+
+                    if (!tracker.Equals(""))
+                        foreach (Channel ch in user.channels)
+                            ch.SendMessage(tracker);
+                }
+            }
+
         }
 
         private void _client_MessageReceived(object sender, MessageEventArgs e)
@@ -353,7 +337,10 @@ namespace MopsBot.Module
                     decimal accuracy = (pointsOfHits / (numberOfHits * 300m));
                     return Math.Round(accuracy*100m, 2);
                 case "m=2":
-                    return 0m;
+                    decimal fruitsCaught = (decimal.Parse(dict3["count50"]) + decimal.Parse(dict3["count100"]) + decimal.Parse(dict3["count300"]));
+                    decimal numberOfFruits = (decimal.Parse(dict3["count50"]) + decimal.Parse(dict3["count100"]) + decimal.Parse(dict3["count300"]) + decimal.Parse(dict3["countkatu"]) + decimal.Parse(dict3["countmiss"]));
+                    accuracy = (numberOfFruits / fruitsCaught);
+                    return Math.Round(accuracy*100m, 2);
                 case "m=1":
                     pointsOfHits = (decimal.Parse(dict3["countmiss"]) * 0m + decimal.Parse(dict3["count100"]) * 0.5m + decimal.Parse(dict3["count300"]) * 1m)*300m;
                     numberOfHits = (decimal.Parse(dict3["countmiss"]) + decimal.Parse(dict3["count100"]) + decimal.Parse(dict3["count300"]));

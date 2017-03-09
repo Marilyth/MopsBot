@@ -26,6 +26,7 @@ namespace MopsBot.Module
         private Data.Session.Bomb bomb;
         private Data.Session.Salad salad;
         private Data.Session.Scramble scramble;
+        private Data.Session.Blackjack blackjack;
 
         void IModule.Install(ModuleManager manager)
         {
@@ -218,6 +219,42 @@ namespace MopsBot.Module
                         await e.Channel.SendMessage(output);
                     }
                     else await e.Channel.SendMessage("No session of hangman running, sorry!");
+                });
+            });
+
+            manager.CreateCommands("blackjack", group =>
+            {
+                group.CreateCommand("start")
+                .Description("Set up a table of blackjack")
+                .Do(async e =>
+                {
+                    await e.Channel.SendMessage(blackjack.showCards() + "\n\n" + blackjack.endRound());
+                });
+
+                group.CreateCommand("join")
+                .Description("Join the table")
+                .Do(async e =>
+                {
+                    if (blackjack == null || !blackjack.active)
+                    {
+                        blackjack = new Data.Session.Blackjack(e.User, e.Server.GetUser(_client.CurrentUser.Id));
+                        await e.Channel.SendMessage("Done. You are now part of my table, dog.\n\n");
+                    }
+                    else await e.Channel.SendMessage(blackjack.userJoin(e.User));
+                });
+
+                group.CreateCommand("draw")
+                .Description("Draw a card")
+                .Do(async e =>
+                {
+                    await e.Channel.SendMessage(blackjack.drawCard(e.User, true));
+                });
+
+                group.CreateCommand("skip")
+                .Description("Skip for the round")
+                .Do(async e =>
+                {
+                    await e.Channel.SendMessage(blackjack.skipRound(e.User));
                 });
             });
 

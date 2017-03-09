@@ -2,7 +2,7 @@
 using Discord.Commands;
 using Discord.Modules;
 using System;
-using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,8 +13,14 @@ namespace MopsBot
     {
         static void Main(string[] args)
         {
-            new Program().Start();
+            //Process process = new Process();
+            //ProcessStartInfo startInfo = new ProcessStartInfo();
+            //startInfo.WindowStyle = ProcessWindowStyle.Hidden;
+            //startInfo.FileName = @"C:\Users\May\Desktop\Mops_Music\playlist.py";
+            //process.StartInfo = startInfo;
+            //process.Start();
 
+            new Program().Start();
         }
 
         private DiscordClient _client;
@@ -33,9 +39,10 @@ namespace MopsBot
             _client.AddModule<Module.Game>("Game");
             _client.AddModule<Module.DataBase>("Data");
             _client.AddModule<Module.Moderation>("Moderation");
+            _client.AddModule<Module.Music>("Music");
 
 
-            var token = "MjEyOTc1NTYxNzU5MzkxNzQ0.CzVqSA.bt-qpwQ6i014LJ6_OY0M5PusA1Q";
+            var token = "MjEyOTc1NTYxNzU5MzkxNzQ0.C39SUg.Wv0w8yRhzyX-_4LFjbrQUjCL-8o";
 
             _client.ExecuteAndWait(async () =>
             {

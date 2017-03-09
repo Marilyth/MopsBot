@@ -33,6 +33,32 @@ namespace MopsBot.Module.Data
             read.Close();
         }
 
+        public string drawDiagram(Server reqServer)
+        {
+            List<osuUser> tempOsuUsers = osuUsers.FindAll(x => x.channels.Exists(y => y.Server == reqServer));
+
+            tempOsuUsers = tempOsuUsers.OrderByDescending(x => x.pp).ToList();
+
+            double maximum = tempOsuUsers[0].pp;
+
+            string[] lines = new string[tempOsuUsers.Count];
+
+            for (int i = 0; i < tempOsuUsers.Count; i++)
+            {
+                lines[i] = (i + 1) < 10 ? $"#{i + 1} |" : $"#{i + 1}|";
+                double relPercent = tempOsuUsers[i].pp / ((double)maximum / 10);
+                for (int j = 0; j < relPercent; j++)
+                {
+                    lines[i] += "■";
+                }
+                lines[i] += $" {Math.Round(tempOsuUsers[i].pp)}pp / {tempOsuUsers[i].username}";
+            }
+
+            string output = "```coq\n" + string.Join("\n", lines) + "```";
+
+            return output;
+        }
+
         public void writeInformation()
         {
             StreamWriter write = new StreamWriter("data//osuid.txt");
