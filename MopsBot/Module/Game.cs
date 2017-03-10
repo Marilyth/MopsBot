@@ -233,17 +233,21 @@ namespace MopsBot.Module
 
                 group.CreateCommand("join")
                 .Description("Join the table")
+                .Parameter("Bet amount")
                 .Do(async e =>
                 {
                     if (blackjack == null || !blackjack.active)
                     {
-                        blackjack = new Data.Session.Blackjack(e.User, e.Server.GetUser(_client.CurrentUser.Id));
-                        await e.Channel.SendMessage("Done. You are now part of my table, dog.\n\n");
+                        blackjack = new Data.Session.Blackjack(e.Server.GetUser(_client.CurrentUser.Id));
+                        await e.Channel.SendMessage("Table set up. Woof.\n\n");
                     }
-                    else await e.Channel.SendMessage(blackjack.userJoin(e.User));
+                    if (int.Parse(e.GetArg("Bet amount")) < findDataUser(e.User).Score)
+                        await e.Channel.SendMessage(blackjack.userJoin(e.User, int.Parse(e.GetArg("Bet amount"))));
+                    else
+                        await e.Channel.SendMessage("You ain't got that much money, dog.");
                 });
 
-                group.CreateCommand("draw")
+                group.CreateCommand("hit")
                 .Description("Draw a card")
                 .Do(async e =>
                 {

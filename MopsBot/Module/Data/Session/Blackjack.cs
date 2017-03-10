@@ -13,19 +13,16 @@ namespace MopsBot.Module.Data.Session
         private List<Card> cards;
         public bool active;
 
-        public Blackjack(User pUser, User pDealer)
+        public Blackjack(User pDealer)
         {
             active = true;
             players = new List<Blackjack_User>();
             players.Add(new Blackjack_User(pDealer, true));
-            players.Add(new Blackjack_User(pUser, false));
             fillDeck();
             shuffleDeck();
 
             drawCard(players[0].player, false);
             drawCard(players[0].player, false);
-            drawCard(players[1].player, false);
-            drawCard(players[1].player, false);
         }
 
         private void fillDeck()
@@ -95,15 +92,16 @@ namespace MopsBot.Module.Data.Session
             return output;
         }
 
-        public string userJoin(User pUser)
+        public string userJoin(User pUser, int bet)
         {
             string output = "";
 
-            Blackjack_User temp = new Blackjack_User(pUser, false);
+            Blackjack_User temp = new Blackjack_User(pUser, bet);
 
             if (!players.Contains(temp))
             {
                 players.Add(temp);
+                Game.addToBase(pUser, -bet);
                 output += $"Ooooh. A newcomer. {pUser.Name} just joined our table.\n\n";
                 drawCard(players[players.Count - 1].player, false);
                 drawCard(players[players.Count - 1].player, false);
@@ -139,28 +137,27 @@ namespace MopsBot.Module.Data.Session
         {
             string output = "", winners = "";
 
-            int best = -21;
+            int dealerValue = players.Find(x => x.dealer == true).cardsValue();
+
+            if (dealerValue > 21)
+                dealerValue = 0;
+
             List<Blackjack_User> winner = new List<Blackjack_User>();
 
             foreach (Blackjack_User cur in players)
             {
+                if (!cur.dealer && cur.cardsValue() <= 21 && cur.cardsValue() > dealerValue)
+                    winner.Add(cur);
                 output += $"{cur.player.Name}: **{cur.cardsValue()}**\n";
-                if (cur.cardsValue() - 21 > best && cur.cardsValue() - 21 < 1)
-                {
-                    winner = new List<Blackjack_User>();
-                    winner.Add(cur);
-                    best = cur.cardsValue() - 21;
-                }
-                else if (cur.cardsValue() - 21 == best)
-                    winner.Add(cur);
             }
 
             foreach (Blackjack_User win in winner)
             {
                 winners += win.player.Name + ", ";
+                Game.addToBase(win.player, win.bet*2);
             }
 
-            return output += $"\n\n The winner is: {(winner.Count > 0 ? winners : "Nobody" )} yay.";
+            return output += $"\nThe winner is: {(winner.Count > 0 ? winners : "Nobody" )} yay.\nWinners have been paid out double their original bet.";
         }
 
         public string endRound()
@@ -180,11 +177,16 @@ namespace MopsBot.Module.Data.Session
                 foreach (Blackjack_User cur in players)
                 {
                     if (!cur.skipped)
-                    {
                         result = false;
-                    }
+
                     if(!cur.dealer)
                         cur.done = false;
+
+                    if (cur.cardsValue() > 21)
+                    {
+                        cur.done = true;
+                        cur.skipped = true;
+                    }
                 }
 
                 if (result)
@@ -200,6 +202,8 @@ namespace MopsBot.Module.Data.Session
 
                     active = false;
                 }
+                else
+                    output += endRound();
             }
 
             else
@@ -213,6 +217,7 @@ namespace MopsBot.Module.Data.Session
     {
         public User player;
         public bool done, dealer, skipped;
+        public int bet;
         public List<Card> cardsHeld;
 
         public Blackjack_User(User pPlayer, bool pDealer)
@@ -228,6 +233,16 @@ namespace MopsBot.Module.Data.Session
 
             else
                 done = false;
+
+            cardsHeld = new List<Card>();
+        }
+
+        public Blackjack_User(User pPlayer, int pBet)
+        {
+            player = pPlayer;
+            bet = pBet;
+            dealer = false;
+            done = false;
 
             cardsHeld = new List<Card>();
         }
