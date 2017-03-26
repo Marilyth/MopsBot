@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Xml.Linq;
 using System.Timers;
 using System.Globalization;
 using System.Collections.Generic;
@@ -8,6 +9,7 @@ using Discord;
 using Discord.Commands;
 using Discord.Commands.Permissions.Visibility;
 using Discord.Modules;
+using System.Linq;
 
 namespace MopsBot.Module
 {
@@ -91,6 +93,144 @@ namespace MopsBot.Module
                     info.writeInformation();
                     await e.Channel.SendMessage($"Up to now, I have been fed {info.cookies} cookies!");
                 });
+
+                group.CreateCommand("hug")
+                .Description("SQUEEZE THEM")
+                .Parameter("People", ParameterType.Unparsed)
+                .Do(async e =>
+                {
+                    string output = "";
+
+                    foreach (var r in e.Message.MentionedRoles)
+                    {
+                        output += "Every Member of the " + r.Name + " role (";
+
+                        foreach (User u in r.Members)
+                        {
+                            if (!e.User.Equals(u))
+                            {
+                                Data.Individual.User botUser = Game.findDataUser(u);
+                                Game.userScores.users.First(x => x.ID == botUser.ID).hugged += 1;
+                                Game.userScores.writeScore();
+                                output += $"`{u.Name}` ";
+                            }
+                        }
+                        output += ") has been hugged by **" + e.User.Name + "**\n";
+                    }
+
+                    foreach (User u in e.Message.MentionedUsers)
+                    {
+                        if (!e.User.Equals(u))
+                        {
+                            Data.Individual.User botUser = Game.findDataUser(u);
+                            Game.userScores.users.First(x => x.ID == botUser.ID).hugged += 1;
+                            Game.userScores.writeScore();
+                            output += $"**{u.Name}** has been hugged by **{e.User.Name}**\nAww. They have already been hugged `{Game.userScores.users.First(x => x.ID == botUser.ID).hugged}` times.\n\n";
+                        }
+                    }
+
+                    await e.Channel.SendMessage(output);
+                });
+
+                group.CreateCommand("punch")
+                .Description("Fuck that asshole up!")
+                .Parameter("People", ParameterType.Unparsed)
+                .Do(async e =>
+                {
+                    string output = "";
+
+                    foreach (var r in e.Message.MentionedRoles)
+                    {
+                        output += "Every Member of the " + r.Name + " role (";
+
+                        foreach (User u in r.Members)
+                        {
+                            if (!e.User.Equals(u))
+                            {
+                                Data.Individual.User botUser = Game.findDataUser(u);
+                                Game.userScores.users.First(x => x.ID == botUser.ID).punched += 1;
+                                Game.userScores.writeScore();
+                                output += $"`{u.Name}` ";
+                            }
+                        }
+                        output += ") has been punched by **" + e.User.Name + "**\n";
+                    }
+
+                    foreach (User u in e.Message.MentionedUsers)
+                    {
+                        if (!e.User.Equals(u))
+                        {
+                            Data.Individual.User botUser = Game.findDataUser(u);
+                            Game.userScores.users.First(x => x.ID == botUser.ID).punched += 1;
+                            Game.userScores.writeScore();
+                            output += $"**{u.Name}** has been punched by **{e.User.Name}**\nThey have already been fucked up `{Game.userScores.users.First(x => x.ID == botUser.ID).punched}` times.\n\n";
+                        }
+                    }
+
+                    await e.Channel.SendMessage(output);
+                });
+
+                group.CreateCommand("kiss")
+                .Description("Suck their soul out! HAHA")
+                .Parameter("People", ParameterType.Unparsed)
+                .Do(async e =>
+                {
+                    string output = "";
+
+                    foreach (var r in e.Message.MentionedRoles)
+                    {
+                        output += "Every Member of the " + r.Name + " role (";
+
+                        foreach (User u in r.Members)
+                        {
+                            if (!e.User.Equals(u))
+                            {
+                                Data.Individual.User botUser = Game.findDataUser(u);
+                                Game.userScores.users.First(x => x.ID == botUser.ID).kissed += 1;
+                                Game.userScores.writeScore();
+                                output += $"`{u.Name}` ";
+                            }
+                        }
+                        output += ") has been kissed by **" + e.User.Name + "**\n";
+                    }
+
+                    foreach(User u in e.Message.MentionedUsers)
+                    {
+                        if (!e.User.Equals(u))
+                        {
+                            Data.Individual.User botUser = Game.findDataUser(u);
+                            Game.userScores.users.First(x => x.ID == botUser.ID).kissed += 1;
+                            Game.userScores.writeScore();
+                            output += $"**{u.Name}** has been kissed by **{e.User.Name}**\nDo I smell love? They have already been kissed `{Game.userScores.users.First(x => x.ID == botUser.ID).kissed}` times.\n\n";
+                        }
+                    }
+
+                    await e.Channel.SendMessage(output);
+                });
+
+                group.CreateCommand("cat")
+                .Description("CATS WOOF!")
+                .Do(async e =>
+                {
+                    var jss = new JavaScriptSerializer();
+                    var dict = jss.Deserialize<dynamic>(Information.readURL("http://api.giphy.com/v1/gifs/random?api_key=dc6zaTOxFJmzC&tag=cat&fmt=json"));
+
+                    await e.Channel.SendMessage(dict["data"]["url"]);
+                });
+
+                group.CreateCommand("gif")
+                .Description("Returns random giphy gif")
+                .Parameter("keyword", ParameterType.Unparsed)
+                .Hide()
+                .Do(async e =>
+                {
+                    string request = e.GetArg("keyword").Replace(' ', '+');
+
+                    var jss = new JavaScriptSerializer();
+                    var dict = jss.Deserialize<dynamic>(Information.readURL($"http://api.giphy.com/v1/gifs/random?api_key=dc6zaTOxFJmzC&tag={request}&fmt=json"));
+
+                    await e.Channel.SendMessage(dict["data"]["url"]);
+                });
             });
 
             manager.CreateCommands("osu", group =>
@@ -103,7 +243,7 @@ namespace MopsBot.Module
 
                     var dict = Module.Data.osuUser.userStats(e.GetArg("name"));
 
-                    try { await e.Channel.SendMessage($"User: {dict["username"]} \nPP: {dict["pp_raw"]}\n\nhttps://osu.ppy.sh/u/{dict["user_id"]}"); } catch (Exception ex) { await e.Channel.SendMessage(ex.Message); }
+                    try { await e.Channel.SendMessage($"http://osusig.ppy.sh/image5.png?uid={dict["user_id"]}&m=15"); } catch (Exception ex) { await e.Channel.SendMessage(ex.Message); }
                 });
 
                 group.CreateCommand("signup")
@@ -256,18 +396,18 @@ namespace MopsBot.Module
                 catch { }
             }
 
-            foreach (Data.OW_User user in owInfo.OW_Users)
-            {
-                if (!user.channels[0].GetUser(user.discordID).Status.Value.Equals(UserStatus.Offline.Value)
-                    && user.channels[0].GetUser(user.discordID).CurrentGame.Value.Equals("Overwatch"))
-                {
-                    string tracker = user.trackChange();
+            //foreach (Data.OW_User user in owInfo.OW_Users)
+            //{
+            //    if (!user.channels[0].GetUser(user.discordID).Status.Value.Equals(UserStatus.Offline.Value)
+            //        && user.channels[0].GetUser(user.discordID).CurrentGame.Value.Equals("Overwatch"))
+            //    {
+            //        string tracker = user.trackChange();
 
-                    if (!tracker.Equals(""))
-                        foreach (Channel ch in user.channels)
-                            ch.SendMessage(tracker);
-                }
-            }
+            //        if (!tracker.Equals(""))
+            //            foreach (Channel ch in user.channels)
+            //                ch.SendMessage(tracker);
+            //    }
+            //}
 
         }
 

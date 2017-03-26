@@ -135,48 +135,48 @@ namespace MopsBot.Module
                        $"\nYou now have {findDataUser(e.User).Score}$");
                });
 
-                group.CreateCommand("1-")
-                .Description("Let's you talk to Chomsky")
-                .Parameter("Message", ParameterType.Unparsed)
-                .Do(async e =>
-                {
-                    await e.Channel.SendMessage($"{bot2session.Think(e.Args[0])}");
-                });
+               // group.CreateCommand("1-")
+               // .Description("Let's you talk to Chomsky")
+               // .Parameter("Message", ParameterType.Unparsed)
+               // .Do(async e =>
+               // {
+               //     await e.Channel.SendMessage($"{bot2session.Think(e.Args[0])}");
+               // });
 
-                group.CreateCommand("2-")
-                .Description("Let's you talk to CleverBot")
-                .Parameter("Message", ParameterType.Unparsed)
-                .Do(async e =>
-                {
-                    await e.Channel.SendMessage($"{HttpUtility.HtmlDecode(Cleverbot1session.Think(e.Args[0]))}");
-                });
+               // group.CreateCommand("2-")
+               // .Description("Let's you talk to CleverBot")
+               // .Parameter("Message", ParameterType.Unparsed)
+               // .Do(async e =>
+               // {
+               //     await e.Channel.SendMessage($"{HttpUtility.HtmlDecode(Cleverbot1session.Think(e.Args[0]))}");
+               // });
 
-                group.CreateCommand("cleverCeption")
-               .Description("Bots talk to each other for a fixed amount of messages. Try not to abuse!")
-               .Parameter("Message Count", ParameterType.Required)
-               .Parameter("Starting Message", ParameterType.Unparsed)
-               .Do(async e =>
-               {
-                   ChatterBot _Cleverbot2 = factory.Create(ChatterBotType.CLEVERBOT);
-                   ChatterBotSession Cleverbot2session = _Cleverbot2.CreateSession();
+               // group.CreateCommand("cleverCeption")
+               //.Description("Bots talk to each other for a fixed amount of messages. Try not to abuse!")
+               //.Parameter("Message Count", ParameterType.Required)
+               //.Parameter("Starting Message", ParameterType.Unparsed)
+               //.Do(async e =>
+               //{
+               //    ChatterBot _Cleverbot2 = factory.Create(ChatterBotType.CLEVERBOT);
+               //    ChatterBotSession Cleverbot2session = _Cleverbot2.CreateSession();
 
-                   string message = e.Args[1] != "" ? e.Args[1] : "Hello";
-                   await e.Channel.SendMessage("A: " + message);
+               //    string message = e.Args[1] != "" ? e.Args[1] : "Hello";
+               //    await e.Channel.SendMessage("A: " + message);
                                   
-                   for(int count = 0; count < int.Parse(e.Args[0]); count++)
-                   {
-                       if(count % 2 != 0)
-                       {
-                           message = HttpUtility.HtmlDecode(Cleverbot1session.Think(message));
-                           await e.Channel.SendMessage("A: " + message);
-                       }
-                       else if(count % 2 == 0)
-                       {
-                           message = HttpUtility.HtmlDecode(Cleverbot2session.Think(message));
-                           await e.Channel.SendMessage("B: " + message);
-                       }
-                   }
-               });       
+               //    for(int count = 0; count < int.Parse(e.Args[0]); count++)
+               //    {
+               //        if(count % 2 != 0)
+               //        {
+               //            message = HttpUtility.HtmlDecode(Cleverbot1session.Think(message));
+               //            await e.Channel.SendMessage("A: " + message);
+               //        }
+               //        else if(count % 2 == 0)
+               //        {
+               //            message = HttpUtility.HtmlDecode(Cleverbot2session.Think(message));
+               //            await e.Channel.SendMessage("B: " + message);
+               //        }
+               //    }
+               //});       
             });
 
             manager.CreateCommands("hangman", group =>
@@ -241,10 +241,10 @@ namespace MopsBot.Module
                         blackjack = new Data.Session.Blackjack(e.Server.GetUser(_client.CurrentUser.Id));
                         await e.Channel.SendMessage("Table set up. Woof.\n\n");
                     }
-                    if (int.Parse(e.GetArg("Bet amount")) < findDataUser(e.User).Score)
+                    if (int.Parse(e.GetArg("Bet amount")) <= findDataUser(e.User).Score && int.Parse(e.GetArg("Bet amount")) > 0)
                         await e.Channel.SendMessage(blackjack.userJoin(e.User, int.Parse(e.GetArg("Bet amount"))));
                     else
-                        await e.Channel.SendMessage("You ain't got that much money, dog.");
+                        await e.Channel.SendMessage("You can't bet that much.");
                 });
 
                 group.CreateCommand("hit")
@@ -456,7 +456,7 @@ namespace MopsBot.Module
             {
                 int pre = -1;
                 if (userScores.users.Any(x => x.ID == e.User.Id)) pre = findDataUser(e.User).Level;
-                addToBase(e.User, 0, e.Message.RawText.Length);
+                if (!e.Message.Text.StartsWith("!")) addToBase(e.User, 0, e.Message.RawText.Length);
                 Information.stats.addValue(e.Message.RawText.Length);
                 if (pre != -1 && pre < findDataUser(e.User).Level) e.Channel.SendMessage($"{e.User.Name} advanced from level {pre} to level {findDataUser(e.User).Level}!");
 
@@ -483,9 +483,8 @@ namespace MopsBot.Module
                 {
                     score += userScores.users[i].Score;
                     int exp = userScores.users[i].Experience;
-                    int mip = userScores.users[i].monster;
+                    userScores.users.Add(new Data.Individual.User(user.Id, score, exp, userScores.users[i].punched, userScores.users[i].hugged, userScores.users[i].kissed));
                     userScores.users.RemoveAt(i);
-                    userScores.users.Add(new Data.Individual.User(user.Id, score, exp));
                     userScores.writeScore();
                     return;
                 }
@@ -503,8 +502,8 @@ namespace MopsBot.Module
                 {
                     score += userScores.users[i].Score;
                     exp += userScores.users[i].Experience;
+                    userScores.users.Add(new Data.Individual.User(user.Id, score, exp, userScores.users[i].punched, userScores.users[i].hugged, userScores.users[i].kissed));
                     userScores.users.RemoveAt(i);
-                    userScores.users.Add(new Data.Individual.User(user.Id, score, exp));
                     userScores.writeScore();
                     return;
                 }
@@ -523,7 +522,9 @@ namespace MopsBot.Module
                     return userScores.users[i];
                 }
             }
-            return null;
+            Data.Individual.User insert = new Data.Individual.User(user.Id, 0, 0, 0, 0, 0);
+            userScores.users.Add(insert);
+            return insert;
         }
 
         public static string findUser(ulong ID)

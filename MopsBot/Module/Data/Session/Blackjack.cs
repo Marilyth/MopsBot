@@ -98,7 +98,7 @@ namespace MopsBot.Module.Data.Session
 
             Blackjack_User temp = new Blackjack_User(pUser, bet);
 
-            if (!players.Contains(temp))
+            if (!players.Exists(x => x.player.Equals(pUser)))
             {
                 players.Add(temp);
                 Game.addToBase(pUser, -bet);

@@ -87,7 +87,10 @@ namespace MopsBot.Module
                     int curLevel = Game.findDataUser(e.User).Level;
                     await e.Channel.SendMessage($"${Game.findDataUser(e.User).Score}\n" +
                                                 $"Level: {curLevel} (Experience Bar: {Game.findDataUser(e.User).calcNextLevel()})\n" +
-                                                $"EXP: {Game.findDataUser(e.User).Experience}\n");
+                                                $"EXP: {Game.findDataUser(e.User).Experience}\n\n" +
+                                                $"Been kissed {Game.findDataUser(e.User).kissed} times\n" +
+                                                $"Been hugged {Game.findDataUser(e.User).hugged} times\n" +
+                                                $"Been punched {Game.findDataUser(e.User).punched} times");
                 });
 
                 group.CreateCommand("dayDiagram")
@@ -155,7 +158,6 @@ namespace MopsBot.Module
                 });
 
                 group.CreateCommand("translate")
-                .Hide()
                 .Parameter("SourceLanguage")
                 .Parameter("Language")
                 .Parameter("Text", ParameterType.Unparsed)

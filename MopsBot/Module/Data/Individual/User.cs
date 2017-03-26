@@ -9,7 +9,18 @@ namespace MopsBot.Module.Data.Individual
     class User
     {
         public ulong ID;
-        public int Score, Experience, Level, monster;
+        public int Score, Experience, Level, punched, hugged, kissed;
+
+        public User(ulong userID, int userScore, int XP, int punch, int hug, int kiss)
+        {
+            ID = userID;
+            Score = userScore;
+            Experience = XP;
+            punched = punch;
+            hugged = hug;
+            kissed = kiss;
+            Level = calcLevel();
+        }
 
         public User(ulong userID, int userScore, int XP)
         {
