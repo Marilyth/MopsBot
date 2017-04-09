@@ -41,19 +41,16 @@ namespace MopsBot
             _client.AddModule<Module.Moderation>("Moderation");
             _client.AddModule<Module.Music>("Music");
 
-
-            var token = "MjEyOTc1NTYxNzU5MzkxNzQ0.C39SUg.Wv0w8yRhzyX-_4LFjbrQUjCL-8o";
-
             _client.ExecuteAndWait(async () =>
             {
-                await _client.Connect(token, TokenType.Bot);
+                await _client.Connect("MjEyOTc1NTYxNzU5MzkxNzQ0.C39SUg.Wv0w8yRhzyX - _4LFjbrQUjCL - 8o", TokenType.Bot);
             });
 
         }
 
         public void Log(object sender, LogMessageEventArgs e)
         {
-            Console.WriteLine($"{e.Message}");
+            Console.WriteLine($"{e.Message} {e.Source} {e.Exception}");
         }
     }
 }

@@ -250,10 +250,26 @@ namespace MopsBot.Module.Data.Session
         public int cardsValue()
         {
             int value = 0;
+            int aceCount = 0;
 
-            foreach(Card cur in cardsHeld)
+            foreach (Card cur in cardsHeld)
             {
-                value += cur.Value;
+                if (!cur.Face.ToString().Equals("A"))
+                    value += cur.Value;
+                else
+                    aceCount++;
+            }
+
+            if (aceCount > 0)
+            {
+                if (value > 10)
+                    value += aceCount;
+                else
+                {
+                    value += 11;
+                    aceCount--;
+                    value += aceCount;
+                }
             }
 
             return value;

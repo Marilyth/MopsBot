@@ -28,44 +28,44 @@ namespace MopsBot.Module
             _client.UserJoined += _client_UserJoined;
 
             manager.CreateCommands("", group =>
-                { 
-                 group.CreateCommand("poll")
-                .Description("Creates a poll\nExample: !poll Am I sexy?;Yes:No;@Panda @Demon @Snail")
-                .Parameter("Poll", ParameterType.Unparsed)
-                .Do(async e =>
                 {
-                    if (!e.User.ServerPermissions.ManageChannels) return;
-                    poll = null;
+                    group.CreateCommand("poll")
+                   .Description("Creates a poll\nExample: !poll Am I sexy?;Yes:No;@Panda @Demon @Snail")
+                   .Parameter("Poll", ParameterType.Unparsed)
+                   .Do(async e =>
+                   {
+                       if (!e.User.ServerPermissions.ManageChannels) return;
+                       poll = null;
 
-                    string[] pollSegments = e.Args[0].Split(';');
-                    List<User> participants = new List<User>();
+                       string[] pollSegments = e.Args[0].Split(';');
+                       List<User> participants = new List<User>();
 
-                    participants.AddRange(e.Message.MentionedUsers.ToList());
+                       participants.AddRange(e.Message.MentionedUsers.ToList());
 
-                    foreach(var a in e.Message.MentionedRoles)
-                    {
-                        if(a.IsEveryone && e.Message.Text.Contains("here")) participants.AddRange(a.Members.Where(x => x.Status == UserStatus.Online));
-                        else participants.AddRange(a.Members);
-                    }
+                       foreach (var a in e.Message.MentionedRoles)
+                       {
+                           if (a.IsEveryone && e.Message.Text.Contains("here")) participants.AddRange(a.Members.Where(x => x.Status == UserStatus.Online));
+                           else participants.AddRange(a.Members);
+                       }
 
-                    poll = new Data.Session.Poll(pollSegments[0], pollSegments[1].Split(':'), participants.ToArray());
+                       poll = new Data.Session.Poll(pollSegments[0], pollSegments[1].Split(':'), participants.ToArray());
 
-                    foreach (Discord.User part in poll.participants)
-                    {
-                        string output = "";
-                        for (int i = 0; i < poll.answers.Length; i++)
-                        {
-                            output += $"\n``{i + 1}`` {poll.answers[i]}";
-                        }
-                        try
-                        {
-                            await part.SendMessage($"{e.User.Name} has created a poll:\n\n📄: {poll.question}\n{output}\n\nTo vote, simply PM me the **Number** of the answer you agree with.");
-                        }
-                        catch { }
-                    }
+                       foreach (Discord.User part in poll.participants)
+                       {
+                           string output = "";
+                           for (int i = 0; i < poll.answers.Length; i++)
+                           {
+                               output += $"\n``{i + 1}`` {poll.answers[i]}";
+                           }
+                           try
+                           {
+                               await part.SendMessage($"{e.User.Name} has created a poll:\n\n📄: {poll.question}\n{output}\n\nTo vote, simply PM me the **Number** of the answer you agree with.");
+                           }
+                           catch { }
+                       }
 
-                    await e.Channel.SendMessage("Poll started, Participants notified!");
-                });
+                       await e.Channel.SendMessage("Poll started, Participants notified!");
+                   });
 
                     group.CreateCommand("pollEnd")
             .Description("Ends the poll and returns the results.")
@@ -75,12 +75,58 @@ namespace MopsBot.Module
 
                 await e.Channel.SendMessage(poll.pollToText());
 
-                foreach(User part in poll.participants)
+                foreach (User part in poll.participants)
                 {
                     await part.SendMessage($"📄:{poll.question}\n\nHas ended without your participation, sorry!");
                     poll.participants.Remove(part);
                 }
             });
+
+                    group.CreateCommand("countRole")
+                    .Parameter("Role")
+                    .Description("Gültige Rollen sind: `osu!` `Diablo` `Overwatch` `League of Legends` `World of Warcraft`")
+                    .Do(async e =>
+                    {
+                            var select = e.Server.FindRoles(e.GetArg("Role")).First();
+                            string memberNames = "";
+
+                            foreach (User member in select.Members)
+                            {
+                                memberNames += $"`{member.Name}` ";
+                            }
+
+                            await e.Channel.SendMessage($"Die Rolle {select.Name} beinhaltet {select.Members.Count()} Menschen.\n({memberNames})");
+                    });
+
+                    group.CreateCommand("joinRole")
+                    .Parameter("Role")
+                    .Description("Gültige Rollen sind: `osu!` `Diablo` `Overwatch` `League of Legends` `World of Warcraft`")
+                    .Do(async e =>
+                    {
+                        if (e.GetArg("Role").ToLower().Equals("osu!") || e.GetArg("Role").ToLower().Equals("diablo") || e.GetArg("Role").ToLower().Equals("overwatch") || e.GetArg("Role").ToLower().Equals("league of legends") || e.GetArg("Role").ToLower().Equals("world of warcraft"))
+                        {
+                            var select = e.Server.FindRoles(e.GetArg("Role")).First();
+                            await e.Channel.SendMessage($"Du bist nun das **{select.Members.ToList().Count +1}.** Mitglied der `{select.Name}` Rolle!");
+                            await e.User.AddRoles(select);
+                        }
+                        else
+                            await e.Channel.SendMessage("Die Rolle existiert nicht.");
+                    });
+
+                    group.CreateCommand("leaveRole")
+                    .Parameter("Role")
+                    .Description("Gültige Rollen sind: `osu!` `Diablo` `Overwatch` `League of Legends` `World of Warcraft`")
+                    .Do(async e =>
+                    {
+                        if (e.GetArg("Role").ToLower().Equals("osu!") || e.GetArg("Role").ToLower().Equals("diablo") || e.GetArg("Role").ToLower().Equals("overwatch") || e.GetArg("Role").ToLower().Equals("league of legends") || e.GetArg("Role").ToLower().Equals("world of warcraft"))
+                        {
+                            var select = e.Server.FindRoles(e.GetArg("Role")).First();
+                            await e.Channel.SendMessage($"Du hast die Rolle {select.Name} verlassen. Sie hat nun nurnoch {select.Members.ToList().Count - 1} Mitglieder.");
+                            await e.User.RemoveRoles(select);
+                        }
+                        else
+                            await e.Channel.SendMessage("Die Rolle existiert nicht.");
+                    });
 
                 });
         }
