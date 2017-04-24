@@ -43,7 +43,7 @@ namespace MopsBot
 
             _client.ExecuteAndWait(async () =>
             {
-                await _client.Connect("MjEyOTc1NTYxNzU5MzkxNzQ0.C39SUg.Wv0w8yRhzyX - _4LFjbrQUjCL - 8o", TokenType.Bot);
+                await _client.Connect("xx", TokenType.Bot);
             });
 
         }
